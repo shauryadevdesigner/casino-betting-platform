@@ -1,0 +1,35 @@
+/* Royal luxury theme — PRD palette */
+:root {
+  --luxury-primary: #1a1a2e;
+  --luxury-secondary: #16213e;
+  --luxury-accent: #0f3460;
+  --luxury-gold: #e94560;
+  --luxury-text: #eaeaea;
+  --luxury-radius: 8px;
+  --luxury-transition: 300ms ease;
+}
+
+.luxury-glass {
+  background: rgba(22, 33, 62, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(234, 234, 234, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  border-radius: var(--luxury-radius);
+}
+
+.luxury-btn {
+  border-radius: var(--luxury-radius);
+  transition: all var(--luxury-transition);
+  background: linear-gradient(135deg, var(--luxury-gold), #c73e54);
+}
+
+.luxury-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.luxury-heading {
+  font-family: "Inter", "Poppins", system-ui, sans-serif;
+  font-weight: 700;
+  color: var(--luxury-text);
+}
