@@ -1,6 +1,10 @@
 {
   "steps": {
     "install": {
+      "inputs": [
+        "...",
+        "."
+      ],
       "commands": [
         "npm install --legacy-peer-deps"
       ]
