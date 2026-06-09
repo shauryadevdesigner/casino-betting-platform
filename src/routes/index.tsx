@@ -221,28 +221,36 @@ function Dashboard() {
                     <p className="font-display font-extrabold text-xs text-white">Leaderboard Highlights</p>
                   </div>
                   <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 hover:text-white uppercase tracking-wider cursor-pointer">
-                    <span>Weekly</span>
-                    <span className="text-[7px]">▼</span>
+                    <span className="px-1 py-0.5 rounded bg-slate-900/40 border border-slate-800/80 text-[8px] font-bold flex items-center gap-1">Weekly <span className="text-[6px]">▼</span></span>
                   </div>
                 </div>
                 <div className="space-y-1.5">
                   {[
-                    { rank: 1, name: "LuckyLegend", value: "$245,870.30", color: "text-amber-400" },
-                    { rank: 2, name: "HighRoller99", value: "$189,450.10", color: "text-slate-300" },
-                    { rank: 3, name: "CryptoKing", value: "$142,335.75", color: "text-amber-600" },
-                  ].map((p, i) => (
-                    <div key={p.name} className="flex items-center justify-between text-xs">
+                    { rank: 1, name: "LuckyLegend", value: "$245,870.30", color: "text-amber-400", rankColor: "text-amber-400", crownColor: "text-amber-400 fill-amber-400", initials: "LL", initialsColor: "text-amber-400 bg-amber-400/10 border-amber-400/20" },
+                    { rank: 2, name: "HighRoller99", value: "$189,450.10", color: "text-amber-400", rankColor: "text-slate-400", crownColor: "text-slate-400 fill-slate-400", initials: "HR", initialsColor: "text-slate-300 bg-slate-500/10 border-slate-500/20" },
+                    { rank: 3, name: "CryptoKing", value: "$142,335.75", color: "text-amber-400", rankColor: "text-amber-600", crownColor: "text-amber-600 fill-amber-600", initials: "CK", initialsColor: "text-amber-600 bg-amber-600/10 border-amber-600/20" },
+                  ].map((p) => (
+                    <div key={p.name} className="flex items-center justify-between text-xs select-none">
                       <span className="flex items-center gap-2 font-semibold text-slate-300">
-                        <span className={`text-[10px] font-black ${p.color}`}>#{p.rank}</span>
-                        <span>{p.name}</span>
+                        <span className={`text-[10px] font-black w-3 text-center ${p.rankColor}`}>{p.rank}</span>
+                        {/* Avatar */}
+                        <div className={`size-5 rounded-full border grid place-items-center text-[8px] font-black uppercase shrink-0 ${p.initialsColor}`}>
+                          {p.initials}
+                        </div>
+                        <span className="flex items-center gap-1 truncate max-w-[95px]">
+                          {p.name}
+                          <Crown className={`size-3 shrink-0 ${p.crownColor}`} />
+                        </span>
                       </span>
-                      <span className="text-white font-extrabold font-display text-[11px]">{p.value}</span>
+                      <span className="text-amber-400 font-extrabold font-display text-[11px]">{p.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="border-t border-slate-900/60 pt-1.5 flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-500 text-[10px] uppercase tracking-wide">Your Rank #24</span>
+              
+              {/* Highlighted Current User Rank Row */}
+              <div className="border border-blue-500/25 bg-blue-950/20 rounded-xl p-1.5 flex items-center justify-between text-xs shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]">
+                <span className="font-bold text-slate-500 text-[9px] uppercase tracking-wide">Your Rank #24</span>
                 <div className="flex items-center gap-1.5">
                   <div className="size-5 rounded-full bg-blue-500/10 border border-blue-500/30 grid place-items-center text-[8px] font-black text-blue-400">LM</div>
                   <span className="text-white font-semibold text-[11px]">LuckMaster</span>
@@ -294,15 +302,15 @@ function Dashboard() {
                   </div>
                   <div className="space-y-1.5 text-xs max-w-[65%]">
                     <div className="flex justify-between font-semibold">
-                      <span className="text-slate-505">Cashback</span>
+                      <span className="text-slate-400">Cashback</span>
                       <span className="text-white font-extrabold">12%</span>
                     </div>
                     <div className="flex justify-between font-semibold">
-                      <span className="text-slate-505">Weekly Bonus</span>
+                      <span className="text-slate-400">Weekly Bonus</span>
                       <span className="text-white font-extrabold">$125.00</span>
                     </div>
                     <div className="flex justify-between font-semibold">
-                      <span className="text-slate-505">Rakeback</span>
+                      <span className="text-slate-400">Rakeback</span>
                       <span className="text-white font-extrabold">15%</span>
                     </div>
                   </div>

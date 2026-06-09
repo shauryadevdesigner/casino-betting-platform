@@ -225,7 +225,7 @@ export function CasinoLayout({ children }: { children: ReactNode }) {
             {/* Online Badge */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0c0d14] border border-slate-800/80 rounded-xl text-[11px] font-semibold text-slate-300">
               <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-              <span>Online: <span className="text-white">1,248</span></span>
+              <span>Online: <span className="text-white">12,458</span></span>
             </div>
 
             {/* Gift Icon Button */}
@@ -233,60 +233,52 @@ export function CasinoLayout({ children }: { children: ReactNode }) {
               <Gift className="size-4.5" />
             </button>
 
-            {isAuthenticated ? (
-              <>
-                {/* Balance Badge */}
-                <div className="flex items-center gap-2 px-3.5 py-1 rounded-xl bg-[#0c0d14] border border-slate-800/80">
-                  <span className="text-xs font-bold text-white tracking-wide">${user!.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                  <button
-                    onClick={quickDeposit}
-                    className="size-6 rounded-lg bg-blue-600 hover:bg-blue-500 grid place-items-center hover:scale-[1.05] active:scale-[0.95] transition-all shadow-[0_0_10px_rgba(37,99,235,0.3)] ml-0.5"
-                    title="Quick Deposit $100"
-                  >
-                    <Plus className="size-3 text-white" />
-                  </button>
+            {/* Balance Badge */}
+            <div className="flex items-center gap-2 px-3.5 py-1 rounded-xl bg-[#0c0d14] border border-slate-800/80">
+              <span className="text-xs font-bold text-white tracking-wide">
+                ${(isAuthenticated ? user!.balance : 2540.75).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </span>
+              <button
+                onClick={isAuthenticated ? quickDeposit : undefined}
+                className="size-6 rounded-lg bg-blue-600 hover:bg-blue-500 grid place-items-center hover:scale-[1.05] active:scale-[0.95] transition-all shadow-[0_0_10px_rgba(37,99,235,0.3)] ml-0.5"
+                title="Deposit"
+              >
+                <Plus className="size-3 text-white" />
+              </button>
+            </div>
+            
+            {/* User Profile */}
+            <div className="flex items-center gap-2.5 pl-1.5 border-l border-slate-800/50">
+              <div className="size-8.5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 p-[1.5px] shadow-[0_0_8px_rgba(59,130,246,0.35)] shrink-0">
+                <div className="w-full h-full rounded-full bg-[#08080c] grid place-items-center text-[10px] font-extrabold text-blue-400 uppercase">
+                  {isAuthenticated ? initials : "LM"}
                 </div>
-                
-                {/* User Profile */}
-                <div className="flex items-center gap-2.5 pl-1.5 border-l border-slate-800/50">
-                  <div className="size-8.5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 p-[1.5px] shadow-[0_0_8px_rgba(59,130,246,0.35)] shrink-0">
-                    <div className="w-full h-full rounded-full bg-[#08080c] grid place-items-center text-[10px] font-extrabold text-blue-400 uppercase">
-                      {initials}
-                    </div>
-                  </div>
-                  <div className="hidden md:flex flex-col text-left justify-center min-w-[85px] leading-none">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs font-extrabold text-white tracking-wide">{user!.displayName}</span>
-                      <svg className="size-3 text-blue-400 fill-blue-400 verified-badge-glow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                      </svg>
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <span className="text-[7.5px] font-black text-amber-400 uppercase tracking-widest">VIP 7</span>
-                      <div className="h-0.5 flex-1 rounded-full bg-slate-800 overflow-hidden max-w-[45px]">
-                        <div className="h-full bg-blue-500 rounded-full" style={{ width: "70%" }} />
-                      </div>
-                    </div>
-                  </div>
-                  <ChevronDown className="size-3.5 text-slate-400 ml-0.5 pointer-events-none" />
-                </div>
-
-                <button onClick={logout} title="Logout" className="size-9 rounded-xl bg-[#0c0d14] border border-slate-800/80 grid place-items-center text-slate-400 hover:text-destructive hover:bg-destructive/10 hover:scale-[1.03] transition-all">
-                  <LogOut className="size-4" />
-                </button>
-              </>
-            ) : (
-              <div className="flex gap-2">
-                <Link to="/login" className="px-4.5 py-2.5 rounded-xl text-xs font-bold border border-border hover:bg-card transition-all">
-                  Sign in
-                </Link>
-                <Link
-                  to="/register"
-                  className="px-4.5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-neon-pink to-neon-purple text-white shadow-[var(--shadow-neon)] hover:scale-[1.02] active:scale-[0.98] transition-all"
-                >
-                  Register
-                </Link>
               </div>
+              <div className="hidden md:flex flex-col text-left justify-center min-w-[85px] leading-none">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-extrabold text-white tracking-wide">
+                    {isAuthenticated ? user!.displayName : "LuckMaster"}
+                  </span>
+                  <svg className="size-3 text-blue-400 fill-blue-400 verified-badge-glow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                </div>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-[7.5px] font-black text-amber-400 uppercase tracking-widest">
+                    {isAuthenticated ? (user!.vipTier === 'bronze' ? 'VIP 7' : 'VIP 12') : "VIP 12"}
+                  </span>
+                  <div className="h-0.5 flex-1 rounded-full bg-slate-800 overflow-hidden max-w-[45px]">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: isAuthenticated ? "70%" : "85%" }} />
+                  </div>
+                </div>
+              </div>
+              <ChevronDown className="size-3.5 text-slate-400 ml-0.5 pointer-events-none" />
+            </div>
+
+            {isAuthenticated && (
+              <button onClick={logout} title="Logout" className="size-9 rounded-xl bg-[#0c0d14] border border-slate-800/80 grid place-items-center text-slate-400 hover:text-destructive hover:bg-destructive/10 hover:scale-[1.03] transition-all">
+                <LogOut className="size-4" />
+              </button>
             )}
           </div>
         </header>

@@ -8,7 +8,7 @@ export function MissionsWidget() {
   const [missions, setMissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
-  const [timeStr, setTimeStr] = useState("12:34:47");
+  const [timeStr, setTimeStr] = useState("08:24:17");
 
   const fetchMissions = async () => {
     try {
@@ -61,9 +61,9 @@ export function MissionsWidget() {
 
   // Fallback / seed data matching screenshot exactly
   const displayMissions = missions.length >= 3 ? missions.slice(0, 3) : [
-    { id: "mock-1", title: "Place 3 Bets", progress: 2, target: 3, reward: 25, completed: true, claimed: false },
-    { id: "mock-2", title: "Win 2 Games", progress: 1, target: 2, reward: 25, completed: false, claimed: false },
-    { id: "mock-3", title: "Play 5 Games", progress: 3, target: 5, reward: 50, completed: false, claimed: false },
+    { id: "mock-1", title: "Place 3 Bets", progress: 3, target: 3, reward: 50, completed: true, claimed: false },
+    { id: "mock-2", title: "Win 2 Games", progress: 1, target: 2, reward: 75, completed: false, claimed: false },
+    { id: "mock-3", title: "Play 5 Games", progress: 3, target: 5, reward: 100, completed: false, claimed: false },
   ];
 
   return (
