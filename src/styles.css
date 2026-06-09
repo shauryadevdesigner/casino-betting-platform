@@ -107,7 +107,14 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  html, body { background-color: var(--color-background); color: var(--color-foreground); scroll-behavior: smooth; }
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    scroll-behavior: smooth;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
   body { font-family: var(--font-sans); }
   h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: 0.03em; }
 }
@@ -295,6 +302,28 @@
 .keno-glow:hover {
   box-shadow: 0 8px 30px rgba(6, 182, 212, 0.25), 0 0 15px rgba(6, 182, 212, 0.35), inset 0 0 8px rgba(6, 182, 212, 0.1);
   border-color: rgba(6, 182, 212, 0.4) !important;
+}
+
+/* Custom premium scrollbar styling to completely remove default white scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #08080d;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Scrollbar support for Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) #08080d;
 }
 
 
