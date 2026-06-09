@@ -67,16 +67,16 @@ export function MissionsWidget() {
   ];
 
   return (
-    <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-5 flex flex-col justify-between h-[236px]">
+    <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4 flex flex-col justify-between h-[190px]">
       <div>
-        <div className="flex justify-between items-center border-b border-slate-900/60 pb-2.5 mb-3.5">
+        <div className="flex justify-between items-center border-b border-slate-900/60 pb-1.5 mb-2">
           <div className="flex items-center gap-2">
             <Target className="size-4 text-rose-500" />
-            <p className="font-display font-extrabold text-xs text-white">Daily Quest</p>
+            <p className="font-display font-extrabold text-xs text-white">Daily Quests</p>
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-2.5">
           {displayMissions.map((m: any) => {
             const progress = Math.min(Number(m.progress || 0), Number(m.target));
             const percent = (progress / Number(m.target)) * 100;
@@ -99,7 +99,7 @@ export function MissionsWidget() {
                 </div>
 
                 {/* Right badges */}
-                <div className="flex items-center gap-2.5 shrink-0 pt-3">
+                <div className="flex items-center gap-2.5 shrink-0">
                   <span className="text-[10px] font-bold text-slate-500">{progress}/{m.target}</span>
                   
                   {/* Coin Badge */}
@@ -138,8 +138,8 @@ export function MissionsWidget() {
         </div>
       </div>
 
-      <div className="text-[10px] text-slate-500 font-semibold text-center mt-2.5">
-        Resets in: {timeStr}
+      <div className="text-[9px] text-slate-500 font-bold text-center mt-1 flex items-center justify-center gap-1">
+        <span>⏱</span> Resets in: {timeStr}
       </div>
     </div>
   );

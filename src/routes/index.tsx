@@ -8,6 +8,7 @@ import { MissionsWidget } from "@/components/MissionsWidget";
 import { useState, useEffect } from "react";
 import heroBg from "@/assets/hero-bg.png";
 import jackpotBanner from "@/assets/jackpot-banner.png";
+import crownImg from "@/assets/crown.png";
 import gCrash from "@/assets/game-crash.jpg";
 import gRoulette from "@/assets/game-roulette.jpg";
 import gDice from "@/assets/game-dice.jpg";
@@ -54,10 +55,10 @@ function Dashboard() {
 
   return (
     <CasinoLayout>
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-5 max-w-[1350px] mx-auto">
-        <div className="space-y-6 min-w-0">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-5 max-w-[1380px] mx-auto xl:h-[calc(100vh-100px)] xl:overflow-hidden">
+        <div className="space-y-4 min-w-0 xl:h-full xl:overflow-y-auto pr-1.5 flex flex-col justify-between">
           {/* Animated Hero Section */}
-          <section className="relative rounded-3xl overflow-hidden border border-slate-900 bg-[#08080d] min-h-[340px] flex flex-col justify-between shadow-2xl">
+          <section className="relative rounded-3xl overflow-hidden border border-slate-900 bg-[#08080d] min-h-[250px] xl:h-[250px] flex flex-col justify-between shadow-2xl shrink-0">
             {/* Background cybernetic image */}
             <div className="absolute inset-0 pointer-events-none z-0">
               <img 
@@ -69,8 +70,8 @@ function Dashboard() {
             </div>
 
             {/* Inner Content Grid */}
-            <div className="relative z-10 p-7 grid md:grid-cols-[1fr_300px] gap-6 items-center w-full">
-              <div className="space-y-4">
+            <div className="relative z-10 p-5 xl:p-6 grid md:grid-cols-[1fr_300px] gap-5 items-center w-full">
+              <div className="space-y-2">
                 <p className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-400">WELCOME TO</p>
                 
                 <h1 className="text-4xl md:text-5xl font-display font-black tracking-wide text-white leading-none">
@@ -81,16 +82,16 @@ function Dashboard() {
                   The next generation of lucky gaming. Fast. Fair. Exciting.
                 </p>
                 
-                <div className="pt-2 flex flex-wrap gap-3">
-                  <Link to="/games/slots" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple font-extrabold text-[10px] uppercase tracking-widest text-white shadow-[0_0_15px_rgba(236,72,153,0.35)] hover:brightness-110 active:scale-[0.98] transition-all flex items-center gap-1.5">
+                <div className="pt-1 flex flex-wrap gap-3">
+                  <Link to="/games/slots" className="px-4 py-2 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple font-extrabold text-[10px] uppercase tracking-widest text-white shadow-[0_0_15px_rgba(236,72,153,0.35)] hover:brightness-110 active:scale-[0.98] transition-all flex items-center gap-1.5">
                     Play Now <Zap className="size-3" />
                   </Link>
-                  <a href="#featured" className="px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-extrabold uppercase tracking-widest text-slate-300 hover:bg-slate-850 hover:text-white transition-all">
+                  <a href="#featured" className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-extrabold uppercase tracking-widest text-slate-300 hover:bg-slate-850 hover:text-white transition-all">
                     Explore Games
                   </a>
                 </div>
                 
-                <div className="pt-3.5 flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-widest text-slate-500 border-t border-slate-900/60 max-w-md">
+                <div className="pt-2 flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-widest text-slate-500 border-t border-slate-900/60 max-w-md">
                   <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-emerald-500" />Provably Fair</span>
                   <span className="flex items-center gap-1.5"><Zap className="size-3.5 text-amber-500" />Instant Payouts</span>
                   <span className="flex items-center gap-1.5"><Lock className="size-3.5 text-cyan-500" />Secure & Encrypted</span>
@@ -143,30 +144,31 @@ function Dashboard() {
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
               {games.map((g) => <GameCard key={g.to} {...g} />)}
             </div>
-          </section>
-
-          {/* Bottom widgets grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          </sec          {/* Bottom widgets grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
             {/* Daily Quests Widget */}
             <MissionsWidget />
 
             {/* Leaderboard Highlights */}
-            <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-5 flex flex-col justify-between h-[236px]">
+            <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4 flex flex-col justify-between h-[190px]">
               <div>
-                <div className="flex justify-between items-center border-b border-slate-900/60 pb-2.5 mb-3">
+                <div className="flex justify-between items-center border-b border-slate-900/60 pb-1.5 mb-2.5">
                   <div className="flex items-center gap-2">
                     <Trophy className="size-4 text-amber-500" />
-                    <p className="font-display font-extrabold text-xs text-white">Leaderboard (Wagers)</p>
+                    <p className="font-display font-extrabold text-xs text-white">Leaderboard Highlights</p>
                   </div>
-                  <Link to="/leaderboard" className="text-[9px] font-bold text-slate-500 hover:text-white uppercase tracking-wider flex items-center gap-0.5">View All</Link>
+                  <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 hover:text-white uppercase tracking-wider cursor-pointer">
+                    <span>Weekly</span>
+                    <span className="text-[7px]">▼</span>
+                  </div>
                 </div>
-                <div className="space-y-2 pt-1.5">
+                <div className="space-y-1.5">
                   {[
-                    { rank: 1, name: "LuckyGamer", value: "250.45 ETH", color: "text-amber-400" },
-                    { rank: 2, name: "HighRoller99", value: "180.75 ETH", color: "text-slate-300" },
-                    { rank: 3, name: "CryptoKing", value: "120.10 ETH", color: "text-amber-600" },
+                    { rank: 1, name: "LuckyLegend", value: "$245,870.30", color: "text-amber-400" },
+                    { rank: 2, name: "HighRoller99", value: "$189,450.10", color: "text-slate-300" },
+                    { rank: 3, name: "CryptoKing", value: "$142,335.75", color: "text-amber-600" },
                   ].map((p, i) => (
-                    <div key={p.name} className="flex items-center justify-between py-0.5 text-xs">
+                    <div key={p.name} className="flex items-center justify-between text-xs">
                       <span className="flex items-center gap-2 font-semibold text-slate-300">
                         <span className={`text-[10px] font-black ${p.color}`}>#{p.rank}</span>
                         <span>{p.name}</span>
@@ -176,88 +178,93 @@ function Dashboard() {
                   ))}
                 </div>
               </div>
-              <div className="border-t border-slate-900/60 pt-2.5 flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-500">You (#250)</span>
-                <span className="text-blue-400 font-extrabold font-display text-[11px]">75.25 ETH</span>
+              <div className="border-t border-slate-900/60 pt-1.5 flex items-center justify-between text-xs">
+                <span className="font-bold text-slate-500 text-[10px] uppercase tracking-wide">Your Rank #24</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="size-5 rounded-full bg-blue-500/10 border border-blue-500/30 grid place-items-center text-[8px] font-black text-blue-400">LM</div>
+                  <span className="text-white font-semibold text-[11px]">LuckMaster</span>
+                </div>
+                <span className="text-blue-400 font-extrabold font-display text-[11px]">$12,540.75</span>
               </div>
             </div>
 
             {/* Tournament Spotlight */}
-            <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-5 flex flex-col justify-between h-[236px]">
+            <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4 flex flex-col justify-between h-[190px]">
               <div>
-                <div className="flex justify-between items-center border-b border-slate-900/60 pb-2.5 mb-3">
+                <div className="flex justify-between items-center border-b border-slate-900/60 pb-1.5 mb-2.5">
                   <div className="flex items-center gap-2">
                     <Trophy className="size-4 text-blue-500" />
-                    <p className="font-display font-extrabold text-xs text-white">Tournament: Legends</p>
+                    <p className="font-display font-extrabold text-xs text-white">Tournament Spotlight</p>
                   </div>
-                  <Link to="/tournaments" className="text-[9px] font-bold text-slate-500 hover:text-white uppercase tracking-wider flex items-center gap-0.5">View All</Link>
-                </div>
-                <div className="pt-2">
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-none">Prize Pool</p>
-                  <p className="text-xl font-display font-black text-white mt-1 leading-none">100 ETH</p>
-                  <p className="text-[9px] text-slate-500 font-medium mt-1">Via the leaderboard!</p>
-                  
-                  <div className="mt-3.5 space-y-1">
-                    <div className="flex justify-between text-[9px] font-bold text-slate-400">
-                      <span>Progress</span>
-                      <span className="text-white">$150,250</span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-slate-900 overflow-hidden border border-slate-900">
-                      <div className="h-full bg-blue-500 rounded-full" style={{ width: "60%" }} />
-                    </div>
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-950/40 border border-blue-500/20 text-[9px] font-bold text-blue-400">
+                    <span>⏱</span> 2d 14h 32m
                   </div>
                 </div>
+                <div className="pt-0.5 flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-rose-500/15 text-rose-500 border border-rose-500/20 uppercase tracking-widest animate-pulse">LIVE</span>
+                    <span className="text-[10px] font-bold text-slate-400 tracking-wide">WEEKLY CHAMPIONSHIP</span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Prize Pool</p>
+                  <p className="text-lg font-display font-black text-amber-400 leading-none">$250,000</p>
+                </div>
               </div>
-              <div className="w-full py-1.5 rounded-xl bg-blue-600/15 border border-blue-500/20 text-center font-display font-extrabold text-[10px] text-blue-400 tracking-wider">
-                Ends in: 12:34:47
-              </div>
+              <button className="w-full py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-center font-display font-extrabold text-[10px] text-white tracking-wider hover:scale-[1.01] transition-all">
+                View Tournament
+              </button>
             </div>
 
-            {/* VIP Lounge Spotlight */}
-            <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-5 flex flex-col justify-between h-[236px] relative overflow-hidden">
-              <div className="absolute top-8 right-2 w-20 h-20 opacity-30 blur-sm flex items-center justify-center pointer-events-none">
-                <Crown className="size-16 text-amber-500 drop-shadow-[0_0_12px_rgba(245,158,11,0.6)] animate-pulse" />
+            {/* VIP Club Spotlight */}
+            <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4 flex flex-col justify-between h-[190px] relative overflow-hidden">
+              <div className="absolute top-2 right-2 w-24 h-24 opacity-60 flex items-center justify-center pointer-events-none">
+                <img 
+                  src={crownImg} 
+                  alt="Gold Crown" 
+                  className="w-18 h-18 object-contain drop-shadow-[0_0_15px_rgba(255,179,0,0.4)] animate-pulse-glow" 
+                />
               </div>
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 border-b border-slate-900/60 pb-2.5 mb-3">
-                  <Crown className="size-4 text-amber-400" />
-                  <p className="font-display font-extrabold text-xs text-white">VIP Club</p>
+              <div className="relative z-10 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 border-b border-slate-900/60 pb-1.5 mb-2.5">
+                    <Crown className="size-4 text-amber-400" />
+                    <p className="font-display font-extrabold text-xs text-white">VIP Club</p>
+                  </div>
+                  <div className="space-y-1.5 text-xs max-w-[65%]">
+                    <div className="flex justify-between font-semibold">
+                      <span className="text-slate-500">Cashback</span>
+                      <span className="text-white font-extrabold">12%</span>
+                    </div>
+                    <div className="flex justify-between font-semibold">
+                      <span className="text-slate-505">Weekly Bonus</span>
+                      <span className="text-white font-extrabold">$125.00</span>
+                    </div>
+                    <div className="flex justify-between font-semibold">
+                      <span className="text-slate-505">Rakeback</span>
+                      <span className="text-white font-extrabold">15%</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-1.5 pt-1 text-xs">
-                  <div className="flex justify-between font-semibold">
-                    <span className="text-slate-500">Your Level</span>
-                    <span className="text-amber-400 font-extrabold">VIP 7</span>
-                  </div>
-                  <div className="flex justify-between font-semibold">
-                    <span className="text-slate-500">Next Reward</span>
-                    <span className="text-white font-extrabold">$5,000</span>
-                  </div>
-                  <div className="flex justify-between font-semibold">
-                    <span className="text-slate-505">Progress</span>
-                    <span className="text-white font-extrabold">78%</span>
-                  </div>
-                </div>
+                <Link to="/vip" className="w-full py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 border border-amber-400/20 hover:brightness-110 text-center font-extrabold text-[10px] text-[#050508] tracking-wider transition-all flex items-center justify-center gap-1">
+                  Go to VIP Club <ChevronRight className="size-3" />
+                </Link>
               </div>
-              <Link to="/vip" className="relative z-10 w-full py-2 rounded-xl bg-gradient-to-r from-amber-500/10 to-amber-600/20 border border-amber-500/20 hover:border-amber-500/40 text-center font-extrabold text-[10px] text-amber-400 tracking-wider transition-all">
-                View VIP Perks →
-              </Link>
             </div>
           </div>
 
           {/* Page Footer Badges */}
-          <div className="pt-8 border-t border-slate-900/60 flex flex-wrap items-center justify-between gap-5 text-slate-500">
+          <div className="pt-4 mt-auto border-t border-slate-900/60 flex flex-wrap items-center justify-between gap-5 text-slate-500">
             <div className="flex items-center gap-2.5">
               <Zap className="size-4 text-[#00c6ff]" />
               <div>
-                <p className="text-[10px] font-black uppercase text-white leading-none">Instant Payouts</p>
-                <p className="text-[9px] font-semibold mt-0.5">Lightning fast</p>
+                <p className="text-[10px] font-black uppercase text-white leading-none">Instant Deposits</p>
+                <p className="text-[9px] font-semibold mt-0.5">Crypto & Fiat</p>
               </div>
             </div>
             <div className="flex items-center gap-2.5">
               <ShieldCheck className="size-4 text-emerald-500" />
               <div>
-                <p className="text-[10px] font-black uppercase text-white leading-none">Secure Play</p>
-                <p className="text-[9px] font-semibold mt-0.5">100% encrypted</p>
+                <p className="text-[10px] font-black uppercase text-white leading-none">Provably Fair</p>
+                <p className="text-[9px] font-semibold mt-0.5">100% Transparent</p>
               </div>
             </div>
             <div className="flex items-center gap-2.5">
@@ -270,18 +277,18 @@ function Dashboard() {
             <div className="flex items-center gap-2.5">
               <Lock className="size-4 text-cyan-400" />
               <div>
-                <p className="text-[10px] font-black uppercase text-white leading-none">Trusted Platform</p>
-                <p className="text-[9px] font-semibold mt-0.5">Provably fair games</p>
+                <p className="text-[10px] font-black uppercase text-white leading-none">Secure Platform</p>
+                <p className="text-[9px] font-semibold mt-0.5">Bank-level Security</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Live Wins Activity feed (Right side) */}
-        <aside className="space-y-4 shrink-0">
-          <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4.5 flex flex-col justify-between min-h-[480px]">
-            <div>
-              <div className="flex justify-between items-center border-b border-slate-900/60 pb-3 mb-4.5">
+        <aside className="space-y-4 shrink-0 xl:h-full xl:flex xl:flex-col justify-between">
+          <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4 flex flex-col justify-between xl:h-full min-h-[400px]">
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex justify-between items-center border-b border-slate-900/60 pb-2 mb-3 shrink-0">
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
                   <p className="font-display font-extrabold text-xs text-white">Live Wins</p>
@@ -291,11 +298,13 @@ function Dashboard() {
                 </Link>
               </div>
               
-              <LiveWinsTicker />
+              <div className="flex-1 overflow-y-auto pr-1">
+                <LiveWinsTicker />
+              </div>
             </div>
             
-            <Link to="/live" className="mt-5 w-full py-2.5 rounded-xl bg-[#121424] hover:bg-[#181a2f] border border-slate-900 text-center font-bold text-[10px] text-slate-300 hover:text-white tracking-wide transition-all">
-              View All Wins →
+            <Link to="/live" className="mt-3 w-full py-2.5 rounded-xl bg-[#121424] hover:bg-[#181a2f] border border-slate-900 text-center font-bold text-[10px] text-slate-300 hover:text-white tracking-wide transition-all shrink-0">
+              View All Activity →
             </Link>
           </div>
         </aside>

@@ -5,7 +5,6 @@ import {
   Trophy,
   Gift,
   BarChart3,
-  Ticket,
   Crown,
   Target,
   Headphones,
@@ -16,7 +15,8 @@ import {
   LogOut,
   Menu as MenuIcon,
   X as XIcon,
-  ChevronDown
+  ChevronDown,
+  Wallet
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api/client";
@@ -30,9 +30,9 @@ const navItems = [
   { to: "/tournaments", label: "Tournaments", icon: Trophy },
   { to: "/rewards", label: "Rewards", icon: Gift },
   { to: "/leaderboard", label: "Leaderboard", icon: BarChart3 },
-  { to: "/raffles", label: "Raffles", icon: Ticket },
+  { to: "/wallet", label: "Wallet", icon: Wallet },
   { to: "/vip", label: "VIP Club", icon: Crown },
-  { to: "/missions", label: "Mission", icon: Target, badge: "3" },
+  { to: "/missions", label: "Missions", icon: Target, badge: "3" },
   { to: "/support", label: "Support", icon: Headphones },
 ];
 
@@ -139,8 +139,8 @@ export function CasinoLayout({ children }: { children: ReactNode }) {
                 className="w-14 h-14 object-contain drop-shadow-[0_0_12px_rgba(255,179,0,0.65)] animate-pulse-glow" 
               />
             </div>
-            <p className="text-xs font-extrabold text-white tracking-wide">Unlock VIP Perks!</p>
-            <p className="mt-1 text-[9px] text-slate-400 font-medium leading-normal max-w-[150px] mx-auto">Higher rewards, exclusive bonuses and more.</p>
+            <p className="text-xs font-extrabold text-white tracking-wide">Unlock VIP Perks</p>
+            <p className="mt-1 text-[9px] text-slate-400 font-medium leading-normal max-w-[150px] mx-auto">Higher rewards, cashback & exclusive benefits.</p>
             <Link to="/vip" className="mt-3 block w-full py-2.5 rounded-xl bg-gradient-to-r from-neon-pink to-neon-purple text-white font-extrabold text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(236,72,153,0.3)] hover:brightness-110 active:scale-[0.98] transition-all">
               Go VIP
             </Link>
@@ -197,7 +197,7 @@ export function CasinoLayout({ children }: { children: ReactNode }) {
               alt="VIP Crown" 
               className="w-12 h-12 mx-auto object-contain drop-shadow-[0_0_10px_rgba(255,179,0,0.6)] animate-pulse-glow mb-1" 
             />
-            <p className="mt-2 text-xs font-extrabold text-white">Unlock VIP Perks!</p>
+            <p className="mt-2 text-xs font-extrabold text-white">Unlock VIP Perks</p>
             <Link to="/vip" onClick={() => setMobileMenuOpen(false)} className="mt-3 block w-full py-2 rounded-lg bg-gradient-to-r from-neon-pink to-neon-purple text-white font-extrabold text-[9px] uppercase tracking-widest text-center shadow-md">
               Go VIP
             </Link>
