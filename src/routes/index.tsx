@@ -9,8 +9,8 @@ import { useState, useEffect } from "react";
 import heroBg from "@/assets/hero-bg.png";
 import jackpotBanner from "@/assets/jackpot-banner.png";
 import crownImg from "@/assets/crown.png";
-import trophyModel from "@/assets/tournament-trophy.png";
-import vipGoldCrown from "@/assets/vip-gold-crown.png";
+import trophyModel from "@/assets/tournament-trophy-transparent.png";
+import vipGoldCrown from "@/assets/vip-gold-crown-transparent.png";
 import gCrash from "@/assets/game-crash.jpg";
 import gRoulette from "@/assets/game-roulette.jpg";
 import gDice from "@/assets/game-dice.jpg";
@@ -89,11 +89,11 @@ function Dashboard() {
 
   return (
     <CasinoLayout>
-      <div className="space-y-5 max-w-[1380px] mx-auto xl:h-[calc(100vh-100px)] xl:overflow-hidden flex flex-col">
+      <div className="space-y-6 max-w-[1380px] mx-auto pb-10 px-4">
         {/* Top Grid: Hero (Left) and Live Wins (Right) */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-5 shrink-0 xl:h-[360px]">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-5 xl:h-[425px]">
           {/* Animated Hero Section */}
-          <section className="relative rounded-3xl overflow-hidden border border-slate-900 bg-[#08080d] min-h-[360px] xl:h-full flex flex-col justify-between shadow-2xl shrink-0">
+          <section className="relative rounded-3xl overflow-hidden border border-slate-900 bg-[#08080d] min-h-[360px] xl:h-full flex flex-col justify-between shadow-2xl">
             {/* Background cybernetic image */}
             <div className="absolute inset-0 pointer-events-none z-0">
               <img 
@@ -126,7 +126,7 @@ function Dashboard() {
                   </a>
                 </div>
                 
-                <div className="pt-2 flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-widest text-slate-500 border-t border-slate-900/60 max-w-md">
+                <div className="pt-2 flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-widest text-slate-500 border-t border-[#0c0d14] max-w-md">
                   <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-emerald-500" />Provably Fair</span>
                   <span className="flex items-center gap-1.5"><Zap className="size-3.5 text-amber-500" />Instant Payouts</span>
                   <span className="flex items-center gap-1.5"><Lock className="size-3.5 text-cyan-500" />Secure & Encrypted</span>
@@ -152,32 +152,32 @@ function Dashboard() {
                 </div>
 
                 {/* Stats Row just below Jackpot */}
-                <div className="grid grid-cols-3 gap-2 text-[9px] font-bold text-slate-400">
+                <div className="grid grid-cols-3 gap-3 text-[10px] font-bold text-slate-400 mt-1">
                   {/* Active Players Box */}
-                  <div className="glass rounded-xl p-1.5 flex flex-col justify-center items-center text-center border border-slate-900/60 bg-[#0c0d14]/40 hover:scale-[1.02] transition-all">
-                    <div className="size-6 rounded-lg grid place-items-center bg-[#a855f7]/10 border border-[#a855f7]/25 text-[#a855f7] shadow-[0_0_6px_rgba(168,85,247,0.1)] shrink-0 mb-1">
-                      <Users className="size-3" />
+                  <div className="glass rounded-xl p-2 flex flex-col justify-center items-center text-center border border-slate-900/60 bg-[#0c0d14]/40 hover:scale-[1.02] transition-all">
+                    <div className="size-7 rounded-lg grid place-items-center bg-[#a855f7]/10 border border-[#a855f7]/25 text-[#a855f7] shadow-[0_0_6px_rgba(168,85,247,0.1)] shrink-0 mb-1">
+                      <Users className="size-3.5" />
                     </div>
-                    <p className="text-white font-extrabold text-[10px] tracking-wide leading-none"><AnimatedCounter value={125847} /></p>
-                    <p className="text-[7px] text-slate-500 font-bold uppercase tracking-wider mt-1">Active Players</p>
+                    <p className="text-white font-extrabold text-[11px] tracking-wide leading-none"><AnimatedCounter value={125847} /></p>
+                    <p className="text-[7.5px] text-slate-500 font-bold uppercase tracking-wider mt-1.5">Active Players</p>
                   </div>
 
                   {/* Live Wins Box */}
-                  <div className="glass rounded-xl p-1.5 flex flex-col justify-center items-center text-center border border-slate-900/60 bg-[#0c0d14]/40 hover:scale-[1.02] transition-all">
-                    <div className="size-6 rounded-lg grid place-items-center bg-emerald-500/10 border border-emerald-500/25 text-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.1)] shrink-0 mb-1">
-                      <TrendingUp className="size-3" />
+                  <div className="glass rounded-xl p-2 flex flex-col justify-center items-center text-center border border-slate-900/60 bg-[#0c0d14]/40 hover:scale-[1.02] transition-all">
+                    <div className="size-7 rounded-lg grid place-items-center bg-emerald-500/10 border border-emerald-500/25 text-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.1)] shrink-0 mb-1">
+                      <TrendingUp className="size-3.5" />
                     </div>
-                    <p className="text-white font-extrabold text-[10px] tracking-wide leading-none"><AnimatedCounter value={1274389} isCurrency={true} /></p>
-                    <p className="text-[7px] text-slate-500 font-bold uppercase tracking-wider mt-1">Live Wins</p>
+                    <p className="text-white font-extrabold text-[11px] tracking-wide leading-none"><AnimatedCounter value={1274389} isCurrency={true} /></p>
+                    <p className="text-[7.5px] text-slate-500 font-bold uppercase tracking-wider mt-1.5">Live Wins</p>
                   </div>
 
                   {/* Tournaments Paid Box */}
-                  <div className="glass rounded-xl p-1.5 flex flex-col justify-center items-center text-center border border-slate-900/60 bg-[#0c0d14]/40 hover:scale-[1.02] transition-all">
-                    <div className="size-6 rounded-lg grid place-items-center bg-amber-500/10 border border-amber-500/25 text-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.15)] shrink-0 mb-1">
-                      <Trophy className="size-3" />
+                  <div className="glass rounded-xl p-2 flex flex-col justify-center items-center text-center border border-slate-900/60 bg-[#0c0d14]/40 hover:scale-[1.02] transition-all">
+                    <div className="size-7 rounded-lg grid place-items-center bg-amber-500/10 border border-amber-500/25 text-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.15)] shrink-0 mb-1">
+                      <Trophy className="size-3.5" />
                     </div>
-                    <p className="text-[#dfaf37] font-extrabold text-[10px] tracking-wide leading-none"><AnimatedCounter value={8562100} isCurrency={true} /></p>
-                    <p className="text-[7px] text-slate-500 font-bold uppercase tracking-wider mt-1">Tournaments Paid</p>
+                    <p className="text-[#dfaf37] font-extrabold text-[11px] tracking-wide leading-none"><AnimatedCounter value={8562100} isCurrency={true} /></p>
+                    <p className="text-[7.5px] text-slate-500 font-bold uppercase tracking-wider mt-1.5">Tournaments Paid</p>
                   </div>
                 </div>
               </div>
@@ -185,8 +185,8 @@ function Dashboard() {
           </section>
 
           {/* Live Wins Activity feed (Right side) - Not scrollable, stands perfectly */}
-          <aside className="space-y-4 shrink-0 xl:h-full xl:flex xl:flex-col justify-between">
-            <div className="glass rounded-3xl p-4 flex flex-col justify-between xl:h-full min-h-[360px] overflow-hidden">
+          <aside className="xl:h-full xl:flex xl:flex-col justify-between">
+            <div className="glass rounded-3xl p-5 flex flex-col justify-between xl:h-full min-h-[360px] overflow-hidden">
               <div className="flex-1 flex flex-col overflow-hidden">
                 <div className="flex justify-between items-center border-b border-slate-900/60 pb-2 mb-3 shrink-0">
                   <div className="flex items-center gap-2">
@@ -210,8 +210,8 @@ function Dashboard() {
           </aside>
         </div>
 
-        {/* Bottom Section (Full Width, scrollable internally on desktop) */}
-        <div className="flex-1 overflow-y-auto space-y-5 pr-1.5 custom-scrollbar">
+        {/* Bottom Section (Full Width, scrolls naturally with browser window) */}
+        <div className="space-y-6">
           {/* Featured games grid */}
           <section id="featured" className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-900/60 pb-2">
@@ -231,18 +231,18 @@ function Dashboard() {
             <MissionsWidget />
 
             {/* Leaderboard Highlights */}
-            <div className="glass rounded-3xl p-4 flex flex-col justify-between h-[190px]">
+            <div className="glass rounded-3xl p-5 flex flex-col justify-between h-[230px] overflow-hidden">
               <div>
-                <div className="flex justify-between items-center border-b border-slate-900/60 pb-1.5 mb-2.5">
+                <div className="flex justify-between items-center border-b border-slate-900/60 pb-2 mb-3">
                   <div className="flex items-center gap-2">
                     <Trophy className="size-4 text-amber-500" />
                     <p className="font-display font-extrabold text-xs text-white">Leaderboard Highlights</p>
                   </div>
                   <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 hover:text-white uppercase tracking-wider cursor-pointer">
-                    <span className="px-1 py-0.5 rounded bg-slate-900/40 border border-slate-800/80 text-[8px] font-bold flex items-center gap-1">Weekly <span className="text-[6px]">▼</span></span>
+                    <span className="px-1.5 py-0.5 rounded bg-slate-900/40 border border-slate-800/80 text-[8px] font-bold flex items-center gap-1">Weekly <span className="text-[6px]">▼</span></span>
                   </div>
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {[
                     { rank: 1, name: "LuckyLegend", value: "$245,870.30", color: "text-amber-400", rankColor: "text-amber-400", crownColor: "text-amber-400 fill-amber-400", initials: "LL", initialsColor: "text-amber-400 bg-amber-400/10 border-amber-400/20" },
                     { rank: 2, name: "HighRoller99", value: "$189,450.10", color: "text-amber-400", rankColor: "text-slate-400", crownColor: "text-slate-400 fill-slate-400", initials: "HR", initialsColor: "text-slate-300 bg-slate-500/10 border-slate-500/20" },
@@ -267,7 +267,7 @@ function Dashboard() {
               </div>
               
               {/* Highlighted Current User Rank Row */}
-              <div className="border border-blue-500/25 bg-blue-950/20 rounded-xl p-1.5 flex items-center justify-between text-xs shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]">
+              <div className="border border-blue-500/25 bg-blue-950/20 rounded-xl p-2 flex items-center justify-between text-xs shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]">
                 <span className="font-bold text-slate-500 text-[9px] uppercase tracking-wide">Your Rank #24</span>
                 <div className="flex items-center gap-1.5">
                   <div className="size-5 rounded-full bg-blue-500/10 border border-blue-500/30 grid place-items-center text-[8px] font-black text-blue-400">LM</div>
@@ -278,22 +278,22 @@ function Dashboard() {
             </div>
 
             {/* Tournament Spotlight */}
-            <div className="glass rounded-3xl p-4 flex flex-col justify-between h-[190px] relative overflow-hidden group">
+            <div className="glass rounded-3xl p-5 flex flex-col justify-between h-[230px] relative overflow-hidden group">
               {/* Purple backglow blur */}
-              <div className="absolute -right-4 -bottom-4 w-28 h-28 bg-[#a855f7]/15 rounded-full blur-2xl pointer-events-none group-hover:bg-[#a855f7]/25 transition-all duration-500" />
+              <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-[#a855f7]/15 rounded-full blur-2xl pointer-events-none group-hover:bg-[#a855f7]/25 transition-all duration-500" />
               
-              {/* Trophy Model Overlay */}
-              <div className="absolute top-1 right-1 w-24 h-24 opacity-70 flex items-center justify-center pointer-events-none z-0">
+              {/* Trophy Model Overlay - Transparent PNG */}
+              <div className="absolute top-1/2 -translate-y-1/2 -right-2 w-32 h-32 opacity-90 flex items-center justify-center pointer-events-none z-0">
                 <img 
                   src={trophyModel} 
                   alt="Trophy Model" 
-                  className="w-20 h-20 object-contain drop-shadow-[0_0_15px_rgba(168,85,247,0.4)] animate-pulse-glow mix-blend-screen" 
+                  className="w-28 h-28 object-contain drop-shadow-[0_0_20px_rgba(168,85,247,0.45)] animate-pulse-glow" 
                 />
               </div>
 
               <div className="relative z-10 flex-1 flex flex-col justify-between">
                 <div>
-                  <div className="flex justify-between items-center border-b border-slate-900/60 pb-1.5 mb-2.5">
+                  <div className="flex justify-between items-center border-b border-slate-900/60 pb-2 mb-3">
                     <div className="flex items-center gap-2">
                       <Trophy className="size-4 text-blue-500" />
                       <p className="font-display font-extrabold text-xs text-white">Tournament Spotlight</p>
@@ -302,41 +302,41 @@ function Dashboard() {
                       <span>⏱</span> 2d 14h 32m
                     </div>
                   </div>
-                  <div className="pt-0.5 flex flex-col gap-1 max-w-[65%]">
+                  <div className="pt-1 flex flex-col gap-1.5 max-w-[60%]">
                     <div className="flex items-center gap-1.5">
                       <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-rose-500/15 text-rose-500 border border-rose-500/20 uppercase tracking-widest animate-pulse">LIVE</span>
                       <span className="text-[10px] font-bold text-slate-400 tracking-wide">WEEKLY CHAMPIONSHIP</span>
                     </div>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Prize Pool</p>
-                    <p className="text-lg font-display font-black text-amber-400 leading-none">$250,000</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Prize Pool</p>
+                    <p className="text-xl font-display font-black text-amber-400 leading-none">$250,000</p>
                   </div>
                 </div>
-                <button className="w-full py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-center font-display font-extrabold text-[10px] text-white tracking-wider hover:scale-[1.01] transition-all">
+                <button className="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-center font-display font-extrabold text-[10px] text-white tracking-wider hover:scale-[1.01] transition-all">
                   View Tournament
                 </button>
               </div>
             </div>
 
             {/* VIP Club Spotlight */}
-            <div className="glass rounded-3xl p-4 flex flex-col justify-between h-[190px] relative overflow-hidden group">
+            <div className="glass rounded-3xl p-5 flex flex-col justify-between h-[230px] relative overflow-hidden group">
               {/* Gold backglow blur */}
-              <div className="absolute -right-4 -bottom-4 w-28 h-28 bg-amber-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-500/20 transition-all duration-500" />
+              <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-amber-500/20 transition-all duration-500" />
               
-              {/* VIP Gold Crown Model Overlay */}
-              <div className="absolute top-1 right-1 w-24 h-24 opacity-75 flex items-center justify-center pointer-events-none z-0">
+              {/* VIP Gold Crown Model Overlay - Transparent PNG */}
+              <div className="absolute top-1/2 -translate-y-1/2 -right-2 w-32 h-32 opacity-95 flex items-center justify-center pointer-events-none z-0">
                 <img 
                   src={vipGoldCrown} 
                   alt="Gold Crown Model" 
-                  className="w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.4)] animate-pulse-glow mix-blend-screen" 
+                  className="w-28 h-28 object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.45)] animate-pulse-glow" 
                 />
               </div>
               <div className="relative z-10 flex-1 flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-2 border-b border-slate-900/60 pb-1.5 mb-2.5">
+                  <div className="flex items-center gap-2 border-b border-slate-900/60 pb-2 mb-3">
                     <Crown className="size-4 text-amber-400" />
                     <p className="font-display font-extrabold text-xs text-white">VIP Club</p>
                   </div>
-                  <div className="space-y-1.5 text-xs max-w-[65%]">
+                  <div className="space-y-2 text-xs max-w-[60%]">
                     <div className="flex justify-between font-semibold">
                       <span className="text-slate-400">Cashback</span>
                       <span className="text-white font-extrabold">12%</span>
@@ -351,7 +351,7 @@ function Dashboard() {
                     </div>
                   </div>
                 </div>
-                <Link to="/vip" className="w-full py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 border border-amber-400/20 hover:brightness-110 text-center font-extrabold text-[10px] text-[#050508] tracking-wider transition-all flex items-center justify-center gap-1">
+                <Link to="/vip" className="w-full py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 border border-amber-400/20 hover:brightness-110 text-center font-extrabold text-[10px] text-[#050508] tracking-wider transition-all flex items-center justify-center gap-1">
                   Go to VIP Club <ChevronRight className="size-3" />
                 </Link>
               </div>
