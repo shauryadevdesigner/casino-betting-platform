@@ -23,6 +23,7 @@ import { api } from "@/lib/api/client";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import crownImg from "@/assets/crown.png";
+import cyberAvatar from "@/assets/cyber-avatar.png";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: Home },
@@ -249,9 +250,11 @@ export function CasinoLayout({ children }: { children: ReactNode }) {
             
             {/* User Profile */}
             <div className="flex items-center gap-2.5 pl-1.5 border-l border-slate-800/50">
-              <div className="size-8.5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 p-[1.5px] shadow-[0_0_8px_rgba(59,130,246,0.35)] shrink-0">
-                <div className="w-full h-full rounded-full bg-[#08080c] grid place-items-center text-[10px] font-extrabold text-blue-400 uppercase">
-                  {isAuthenticated ? initials : "LM"}
+              <div className="size-8.5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 p-[1.5px] shadow-[0_0_8px_rgba(59,130,246,0.35)] overflow-hidden shrink-0">
+                <div className="w-full h-full rounded-full bg-[#08080c] grid place-items-center text-[10px] font-extrabold text-blue-400 uppercase overflow-hidden">
+                  {isAuthenticated ? initials : (
+                    <img src={cyberAvatar} alt="LuckMaster" className="w-full h-full object-cover rounded-full" />
+                  )}
                 </div>
               </div>
               <div className="hidden md:flex flex-col text-left justify-center min-w-[85px] leading-none">
