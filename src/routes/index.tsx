@@ -28,14 +28,46 @@ export const Route = createFileRoute("/")({
 });
 
 const games = [
-  { to: "/games/crash", name: "CRASH", image: gCrash, players: 1248, accent: "#f43f5e", glowClass: "crash-glow" },
-  { to: "/games/roulette", name: "ROULETTE", image: gRoulette, players: 1023, accent: "#eab308", glowClass: "roulette-glow" },
-  { to: "/games/dice", name: "DICE", image: gDice, players: 1878, accent: "#a855f7", glowClass: "dice-glow" },
-  { to: "/games/mines", name: "MINES", image: gMines, players: 1532, accent: "#3b82f6", glowClass: "mines-glow" },
-  { to: "/games/towers", name: "TOWERS", image: gTowers, players: 1109, accent: "#22c55e", glowClass: "towers-glow" },
-  { to: "/games/slots", name: "$LOTS", image: gSlots, players: 2345, accent: "#ec4899", glowClass: "slots-glow" },
-  { to: "/games/keno", name: "KENO", image: gKeno, players: 1567, accent: "#06b6d4", glowClass: "keno-glow" },
+  { to: "/games/crash", name: "CRASH", image: gCrash, players: 2457, accent: "#f43f5e", glowClass: "crash-glow" },
+  { to: "/games/roulette", name: "ROULETTE", image: gRoulette, players: 1876, accent: "#eab308", glowClass: "roulette-glow" },
+  { to: "/games/dice", name: "DICE", image: gDice, players: 3124, accent: "#a855f7", glowClass: "dice-glow" },
+  { to: "/games/mines", name: "MINES", image: gMines, players: 2113, accent: "#3b82f6", glowClass: "mines-glow" },
+  { to: "/games/towers", name: "TOWERS", image: gTowers, players: 1653, accent: "#22c55e", glowClass: "towers-glow" },
+  { to: "/games/slots", name: "$LOTS", image: gSlots, players: 4892, accent: "#ec4899", glowClass: "slots-glow" },
+  { to: "/games/keno", name: "KENO", image: gKeno, players: 2038, accent: "#06b6d4", glowClass: "keno-glow" },
 ];
+
+function AnimatedCounter({ value, duration = 1500, isCurrency = false }: { value: number; duration?: number; isCurrency?: boolean }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const end = value;
+    const startTime = performance.now();
+
+    const updateCount = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(start + (end - start) * ease);
+      setCount(current);
+
+      if (progress < 1) {
+        requestAnimationFrame(updateCount);
+      }
+    };
+
+    requestAnimationFrame(updateCount);
+  }, [value, duration]);
+
+  return (
+    <span>
+      {isCurrency ? "$" : ""}
+      {count.toLocaleString()}
+    </span>
+  );
+}
 
 function Dashboard() {
   const { user } = useAuth();
@@ -117,18 +149,18 @@ function Dashboard() {
             </div>
 
             {/* Bottom stats banner inside Hero Card */}
-            <div className="relative z-10 w-full px-6 py-2.5 bg-[#040406]/95 border-t border-slate-900 flex flex-wrap items-center justify-between gap-3 text-[10px] font-bold text-slate-400">
+            <div className="relative z-10 w-full px-6 py-3 bg-[#040406]/95 border-t border-slate-900/80 flex flex-wrap items-center justify-between gap-6 text-[10px] font-bold text-slate-400">
               <div className="flex items-center gap-2">
-                <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
-                <span>ONLINE <span className="text-white">1,248 Players</span></span>
+                <span className="size-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.7)]" />
+                <span className="text-slate-400">ACTIVE PLAYERS: <span className="text-white font-extrabold text-[11px]"><AnimatedCounter value={125847} /></span></span>
               </div>
               <div className="flex items-center gap-2">
-                <TrendingUp className="size-3.5 text-[#00c6ff]" />
-                <span>TOTAL WINS <span className="text-white">24H WINS</span></span>
+                <TrendingUp className="size-3.5 text-[#00c6ff] drop-shadow-[0_0_4px_rgba(0,198,255,0.4)]" />
+                <span className="text-slate-400">LIVE WINS: <span className="text-white font-extrabold text-[11px]"><AnimatedCounter value={1274389} isCurrency={true} /></span></span>
               </div>
               <div className="flex items-center gap-2">
-                <Trophy className="size-3.5 text-amber-500" />
-                <span>$4,342,700 <span className="text-slate-650">/</span> <span className="text-amber-500">$4,342,300</span></span>
+                <Trophy className="size-3.5 text-amber-500 drop-shadow-[0_0_4px_rgba(245,158,11,0.4)]" />
+                <span className="text-slate-400">TOURNAMENTS PAID: <span className="text-amber-400 font-extrabold text-[11px]"><AnimatedCounter value={8562100} isCurrency={true} /></span></span>
               </div>
             </div>
           </section>
@@ -150,7 +182,7 @@ function Dashboard() {
             <MissionsWidget />
 
             {/* Leaderboard Highlights */}
-            <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4 flex flex-col justify-between h-[190px]">
+            <div className="glass rounded-3xl p-4 flex flex-col justify-between h-[190px]">
               <div>
                 <div className="flex justify-between items-center border-b border-slate-900/60 pb-1.5 mb-2.5">
                   <div className="flex items-center gap-2">
@@ -189,7 +221,7 @@ function Dashboard() {
             </div>
 
             {/* Tournament Spotlight */}
-            <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4 flex flex-col justify-between h-[190px]">
+            <div className="glass rounded-3xl p-4 flex flex-col justify-between h-[190px]">
               <div>
                 <div className="flex justify-between items-center border-b border-slate-900/60 pb-1.5 mb-2.5">
                   <div className="flex items-center gap-2">
@@ -215,7 +247,7 @@ function Dashboard() {
             </div>
 
             {/* VIP Club Spotlight */}
-            <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4 flex flex-col justify-between h-[190px] relative overflow-hidden">
+            <div className="glass rounded-3xl p-4 flex flex-col justify-between h-[190px] relative overflow-hidden">
               <div className="absolute top-2 right-2 w-24 h-24 opacity-60 flex items-center justify-center pointer-events-none">
                 <img 
                   src={crownImg} 
@@ -286,7 +318,7 @@ function Dashboard() {
 
         {/* Live Wins Activity feed (Right side) */}
         <aside className="space-y-4 shrink-0 xl:h-full xl:flex xl:flex-col justify-between">
-          <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4 flex flex-col justify-between xl:h-full min-h-[400px]">
+          <div className="glass rounded-3xl p-4 flex flex-col justify-between xl:h-full min-h-[400px]">
             <div className="flex-1 flex flex-col overflow-hidden">
               <div className="flex justify-between items-center border-b border-slate-900/60 pb-2 mb-3 shrink-0">
                 <div className="flex items-center gap-2">

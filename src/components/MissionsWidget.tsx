@@ -67,7 +67,7 @@ export function MissionsWidget() {
   ];
 
   return (
-    <div className="bg-[#0b0c15] border border-slate-900 rounded-3xl p-4 flex flex-col justify-between h-[190px]">
+    <div className="glass rounded-3xl p-4 flex flex-col justify-between h-[190px]">
       <div>
         <div className="flex justify-between items-center border-b border-slate-900/60 pb-1.5 mb-2">
           <div className="flex items-center gap-2">

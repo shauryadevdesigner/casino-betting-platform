@@ -25,6 +25,11 @@ export function GameCard({ to, name, image, players, accent, glowClass, hideText
           loading="lazy" 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-[0.85] group-hover:brightness-[0.95]" 
         />
+        {/* Overlay Green Dot & Player Count */}
+        <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-black/65 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/5 text-[9px] font-black text-slate-300 shadow-md">
+          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+          <span>{players.toLocaleString()}</span>
+        </div>
         {!hideText && (
           <div className="absolute inset-0 bg-gradient-to-t from-[#08080c] via-[#08080c]/30 to-transparent" />
         )}
