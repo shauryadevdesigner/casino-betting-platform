@@ -113,7 +113,7 @@ function Dashboard() {
                   Fast<span className="bg-gradient-to-r from-neon-blue to-neon-pink bg-clip-text text-transparent">Luck</span>
                 </h1>
                 
-                <p className="text-xs text-slate-400 max-w-sm leading-relaxed font-medium">
+                <p className="text-xs text-slate-400 max-w-xl leading-relaxed font-medium">
                   The next generation of lucky gaming. Fast. Fair. Exciting.
                 </p>
                 
@@ -126,7 +126,7 @@ function Dashboard() {
                   </a>
                 </div>
                 
-                <div className="pt-2 flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-widest text-slate-500 border-t border-[#0c0d14] max-w-md">
+                <div className="pt-2.5 flex flex-wrap gap-4.5 text-[9px] font-bold uppercase tracking-widest text-slate-500 border-t border-slate-800/60 max-w-xl">
                   <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-emerald-500" />Provably Fair</span>
                   <span className="flex items-center gap-1.5"><Zap className="size-3.5 text-amber-500" />Instant Payouts</span>
                   <span className="flex items-center gap-1.5"><Lock className="size-3.5 text-cyan-500" />Secure & Encrypted</span>
