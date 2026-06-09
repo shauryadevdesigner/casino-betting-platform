@@ -7,6 +7,8 @@ import {
   setup2FA,
   verify2FA,
   disable2FA,
+  postSignup,
+  check2FA,
 } from "../controllers/authController.js";
 import { protect } from "../middleware/auth.js";
 
@@ -19,5 +21,7 @@ router.get("/me", protect, getMe);
 router.post("/2fa/setup", protect, setup2FA);
 router.post("/2fa/verify", protect, verify2FA);
 router.post("/2fa/disable", protect, disable2FA);
+router.post("/post-signup", protect, postSignup);
+router.post("/2fa/check", protect, check2FA);
 
 export default router;

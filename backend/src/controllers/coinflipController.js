@@ -1,4 +1,4 @@
-import { GameHistory } from "../models/GameHistory.js";
+import { supabase } from "../lib/supabase.js";
 import { deductBet, creditWin } from "../services/walletService.js";
 import { updateStatsAfterGame } from "../services/statsService.js";
 import { flipCoin } from "../utils/gameMath.js";
@@ -11,9 +11,9 @@ export const playCoinFlip = asyncHandler(async (req, res) => {
   const betAmount = Number(req.body.betAmount);
   const choice = req.body.choice?.toLowerCase();
 
-  if (!betAmount || betAmount <= 0) throw new AppError("Valid bet amount required");
+  if (!betAmount || betAmount <= 0) throw new AppError("Valid bet amount required", 400);
   if (!VALID_CHOICES.includes(choice)) {
-    throw new AppError("Choice must be heads or tails");
+    throw new AppError("Choice must be heads or tails", 400);
   }
 
   await deductBet(req.user._id, betAmount, "coinflip", { choice });
@@ -27,20 +27,35 @@ export const playCoinFlip = asyncHandler(async (req, res) => {
     await creditWin(req.user._id, payout, "coinflip", { result, choice });
   }
 
-  const history = await GameHistory.create({
-    userId: req.user._id,
-    game: "coinflip",
-    betAmount,
-    payout,
-    profit: payout - betAmount,
-    won,
-    multiplier: won ? multiplier : 0,
-    result: { choice, result },
-    status: "completed",
-  });
+  // Insert game history
+  const { data: history, error: historyErr } = await supabase
+    .from("game_histories")
+    .insert({
+      user_id: req.user._id,
+      game: "coinflip",
+      bet_amount: betAmount,
+      payout,
+      profit: payout - betAmount,
+      won,
+      multiplier: won ? multiplier : 0,
+      result: { choice, result },
+      status: "completed",
+    })
+    .select()
+    .single();
+
+  if (historyErr) throw new AppError("Failed to save game history", 500);
 
   const stats = await updateStatsAfterGame(req.user._id, { betAmount, payout, won });
-  const user = await req.user.constructor.findById(req.user._id);
+
+  // Get updated balance
+  const { data: wallet } = await supabase
+    .from("wallets")
+    .select("balance")
+    .eq("user_id", req.user._id)
+    .single();
+
+  const balance = Number(wallet?.balance ?? 1000);
 
   res.json({
     success: true,
@@ -50,8 +65,8 @@ export const playCoinFlip = asyncHandler(async (req, res) => {
     multiplier,
     payout,
     profit: payout - betAmount,
-    balance: user.balance,
-    historyId: history._id,
+    balance,
+    historyId: history.id,
     stats,
   });
 });

@@ -1,6 +1,4 @@
-import jwt from "jsonwebtoken";
-import { env } from "../config/env.js";
-import { User } from "../models/User.js";
+import { supabase } from "../lib/supabase.js";
 import { setSocketIO } from "../services/socket.service.js";
 import { registerSocketEvents } from "./events.js";
 
@@ -14,13 +12,29 @@ export function initSocket(io) {
         socket.handshake.headers?.authorization?.replace("Bearer ", "");
       if (!token) return next(new Error("Authentication required"));
 
-      const decoded = jwt.verify(token, env.jwtSecret);
-      const user = await User.findById(decoded.sub);
-      if (!user || !user.isActive || user.isBanned) {
+      // Verify Supabase access token
+      const { data: { user: authUser }, error } = await supabase.auth.getUser(token);
+      if (error || !authUser) {
         return next(new Error("Unauthorized"));
       }
-      socket.userId = user._id.toString();
-      socket.user = user;
+
+      // Query user profile and wallet balance
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*, wallets(balance)")
+        .eq("id", authUser.id)
+        .single();
+
+      if (!profile || !profile.is_active || profile.is_banned) {
+        return next(new Error("Unauthorized"));
+      }
+
+      socket.userId = profile.id;
+      socket.user = {
+        ...profile,
+        _id: profile.id, // Legacy compatibility
+        balance: Number(profile.wallets?.balance ?? 1000),
+      };
       next();
     } catch {
       next(new Error("Invalid token"));

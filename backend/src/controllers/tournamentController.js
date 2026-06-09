@@ -1,64 +1,110 @@
-import { Tournament } from "../models/Tournament.js";
-import { TournamentEntry } from "../models/TournamentEntry.js";
-import { User } from "../models/User.js";
+import { supabase } from "../lib/supabase.js";
 import { emitToUser } from "../services/socket.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { AppError } from "../middleware/errorHandler.js";
 
 export const getActiveTournament = asyncHandler(async (req, res) => {
-  const now = new Date();
-  let tournament = await Tournament.findOne({
-    status: "active",
-    startTime: { $lte: now },
-    endTime: { $gte: now },
-  }).lean();
+  const now = new Date().toISOString();
+
+  // Find active tournament
+  let { data: tournament, error } = await supabase
+    .from("tournaments")
+    .select("*")
+    .eq("status", "active")
+    .lte("start_time", now)
+    .gte("end_time", now)
+    .maybeSingle();
+
+  if (error) throw new AppError(error.message, 500);
 
   if (!tournament) {
-    tournament = await Tournament.findOne({ status: "upcoming" })
-      .sort({ startTime: 1 })
-      .lean();
+    // Fallback to upcoming tournament
+    const { data: upcoming } = await supabase
+      .from("tournaments")
+      .select("*")
+      .eq("status", "upcoming")
+      .order("start_time", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    tournament = upcoming;
   }
 
   if (!tournament) {
     return res.json({ success: true, tournament: null, leaderboard: [] });
   }
 
-  const entries = await TournamentEntry.find({ tournamentId: tournament._id })
-    .populate("userId", "username displayName vipTier profilePictureUrl avatarUrl")
-    .sort({ score: -1 })
-    .limit(50)
-    .lean();
+  // Fetch entries and join user profiles
+  const { data: entries, error: entriesErr } = await supabase
+    .from("tournament_entries")
+    .select("*, profile:user_id(username, display_name, vip_tier, profile_picture_url, avatar_url)")
+    .eq("tournament_id", tournament.id)
+    .order("score", { ascending: false })
+    .limit(50);
 
-  const myEntry = entries.find(
-    (e) => e.userId?._id?.toString() === req.user?._id?.toString(),
+  if (entriesErr) throw new AppError(entriesErr.message, 500);
+
+  const mappedEntries = (entries || []).map((e, i) => ({
+    rank: i + 1,
+    score: Number(e.score),
+    user: e.profile ? {
+      _id: e.user_id,
+      id: e.user_id,
+      username: e.profile.username,
+      displayName: e.profile.display_name || e.profile.username,
+      vipTier: e.profile.vip_tier,
+      avatarUrl: e.profile.avatar_url || e.profile.profile_picture_url,
+      profilePictureUrl: e.profile.profile_picture_url,
+    } : null,
+    prize: Number(e.prize || 0),
+  }));
+
+  const myEntryIndex = mappedEntries.findIndex(
+    (e) => e.user?.id === req.user?._id?.toString(),
   );
 
   res.json({
     success: true,
-    tournament,
-    leaderboard: entries.map((e, i) => ({
-      rank: i + 1,
-      score: e.score,
-      user: e.userId,
-      prize: e.prize,
-    })),
-    myRank: myEntry
-      ? entries.findIndex((e) => e.userId._id.equals(req.user._id)) + 1
-      : null,
+    tournament: {
+      ...tournament,
+      _id: tournament.id,
+    },
+    leaderboard: mappedEntries,
+    myRank: myEntryIndex !== -1 ? myEntryIndex + 1 : null,
   });
 });
 
 export const joinTournament = asyncHandler(async (req, res) => {
-  const tournament = await Tournament.findById(req.params.id);
-  if (!tournament || tournament.status !== "active") {
+  const { data: tournament, error } = await supabase
+    .from("tournaments")
+    .select("*")
+    .eq("id", req.params.id)
+    .single();
+
+  if (error || !tournament || tournament.status !== "active") {
     throw new AppError("Tournament not active", 400);
   }
 
-  const entry = await TournamentEntry.findOneAndUpdate(
-    { tournamentId: tournament._id, userId: req.user._id },
-    { $setOnInsert: { score: 0 } },
-    { upsert: true, new: true },
-  );
+  // Upsert entry with score 0 if it doesn't exist
+  const { data: entry, error: upsertErr } = await supabase
+    .from("tournament_entries")
+    .upsert(
+      {
+        tournament_id: tournament.id,
+        user_id: req.user._id,
+      },
+      { onConflict: "tournament_id,user_id" },
+    )
+    .select()
+    .single();
 
-  res.json({ success: true, entry });
+  if (upsertErr) throw new AppError("Failed to join tournament", 500);
+
+  res.json({
+    success: true,
+    entry: {
+      ...entry,
+      _id: entry.id,
+    },
+  });
 });

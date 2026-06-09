@@ -79,42 +79,35 @@ async function request<T>(
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch (err) {
+    // Network error – backend is likely down
+    throw new ApiError(
+      "Cannot reach the server. Please ensure the backend is running.",
+      0,
+    );
+  }
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    // Provide user-friendly messages for common error codes
+    if (res.status === 503 && (data as any).code === "DB_UNAVAILABLE") {
+      throw new ApiError(
+        "Database is temporarily unavailable. The server is running but cannot reach the database. Please try again shortly.",
+        503,
+      );
+    }
     throw new ApiError(data.message || "Request failed", res.status);
   }
   return data as T;
 }
 
 export const api = {
-  register: (body: {
-    username: string;
-    email: string;
-    password: string;
-    displayName?: string;
-    referralCode?: string;
-  }) =>
-    request<{ success: boolean; token: string; user: PublicUser }>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(body),
-      auth: false,
-    }),
-
-  login: (body: { email: string; password: string; otp?: string }) =>
-    request<
-      | { success: boolean; token: string; user: PublicUser }
-      | { success: boolean; requires2FA: true; userId: string }
-    >("/auth/login", {
-      method: "POST",
-      body: JSON.stringify(body),
-      auth: false,
-    }),
-
   googleLogin: (body: { idToken: string; referralCode?: string }) =>
     request<{ success: boolean; token: string; user: PublicUser }>("/auth/google", {
       method: "POST",
@@ -122,7 +115,17 @@ export const api = {
       auth: false,
     }),
 
-  me: () => request<{ success: boolean; user: PublicUser }>("/auth/me"),
+  postSignup: (body: { referralCode?: string }) =>
+    request<{ success: boolean }>("/auth/post-signup", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  check2FA: (body: { otp: string }) =>
+    request<{ success: boolean }>("/auth/2fa/check", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
 
   getBalance: () =>
     request<{
@@ -137,6 +140,12 @@ export const api = {
     request<{ success: boolean; balance: number }>("/wallet/deposit", {
       method: "POST",
       body: JSON.stringify({ amount }),
+    }),
+
+  withdraw: (amount: number, otp?: string) =>
+    request<{ success: boolean; balance: number }>("/wallet/withdraw", {
+      method: "POST",
+      body: JSON.stringify({ amount, otp }),
     }),
 
   transactions: (params?: { limit?: number; skip?: number }) => {
@@ -230,6 +239,12 @@ export const api = {
       next: unknown;
     }>("/vip/tiers"),
 
+  buyVip: (tierKey: string) =>
+    request<{ success: boolean; user: PublicUser }>("/vip/buy", {
+      method: "POST",
+      body: JSON.stringify({ tierKey }),
+    }),
+
   missions: () => request<{ success: boolean; missions: unknown[] }>("/missions"),
 
   claimMission: (id: string) =>
@@ -238,9 +253,14 @@ export const api = {
     }),
 
   tournamentActive: () =>
-    request<{ success: boolean; tournament: unknown; leaderboard: unknown[]; myRank: number | null }>(
+    request<{ success: boolean; tournament: any; leaderboard: any[]; myRank: number | null }>(
       "/tournaments/active",
     ),
+
+  joinTournament: (id: string) =>
+    request<{ success: boolean; entry: any }>(`/tournaments/${id}/join`, {
+      method: "POST",
+    }),
 
   supportChat: () =>
     request<{ success: boolean; chat: { _id: string }; messages: unknown[] }>("/support/chat"),
@@ -253,6 +273,12 @@ export const api = {
 
   verify2FA: (token: string) =>
     request<{ success: boolean }>("/auth/2fa/verify", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    }),
+
+  disable2FA: (token: string) =>
+    request<{ success: boolean }>("/auth/2fa/disable", {
       method: "POST",
       body: JSON.stringify({ token }),
     }),

@@ -1,35 +1,44 @@
-/* Royal luxury theme — PRD palette */
+/* Royal luxury gold theme */
 :root {
-  --luxury-primary: #1a1a2e;
-  --luxury-secondary: #16213e;
-  --luxury-accent: #0f3460;
-  --luxury-gold: #e94560;
-  --luxury-text: #eaeaea;
-  --luxury-radius: 8px;
-  --luxury-transition: 300ms ease;
+  --luxury-primary: #0a0a0f;
+  --luxury-secondary: #101018;
+  --luxury-accent: #151522;
+  --luxury-gold: #dfaf37;
+  --luxury-gold-glow: #ffb300;
+  --luxury-text: #f0f0f5;
+  --luxury-radius: 12px;
+  --luxury-transition: 350ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .luxury-glass {
-  background: rgba(22, 33, 62, 0.65);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(234, 234, 234, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  background: rgba(16, 16, 24, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(223, 175, 55, 0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.05);
   border-radius: var(--luxury-radius);
 }
 
 .luxury-btn {
   border-radius: var(--luxury-radius);
   transition: all var(--luxury-transition);
-  background: linear-gradient(135deg, var(--luxury-gold), #c73e54);
+  background: linear-gradient(135deg, var(--luxury-gold-glow), var(--luxury-gold));
+  color: #050508;
+  font-weight: 700;
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 15px rgba(223, 175, 55, 0.3);
 }
 
 .luxury-btn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
+  filter: brightness(1.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(223, 175, 55, 0.45);
 }
 
 .luxury-heading {
-  font-family: "Inter", "Poppins", system-ui, sans-serif;
-  font-weight: 700;
+  font-family: "Outfit", system-ui, sans-serif;
+  font-weight: 800;
   color: var(--luxury-text);
+  letter-spacing: 0.05em;
 }
+

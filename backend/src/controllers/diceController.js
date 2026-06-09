@@ -1,4 +1,4 @@
-import { GameHistory } from "../models/GameHistory.js";
+import { supabase } from "../lib/supabase.js";
 import { deductBet, creditWin } from "../services/walletService.js";
 import { updateStatsAfterGame } from "../services/statsService.js";
 import { diceMultiplier, diceWins } from "../utils/gameMath.js";
@@ -17,9 +17,9 @@ export const playDice = asyncHandler(async (req, res) => {
   const mode = req.body.mode;
   const clientSeed = req.body.clientSeed || "default";
 
-  if (!betAmount || betAmount <= 0) throw new AppError("Valid bet amount required");
-  if (!["under", "over"].includes(mode)) throw new AppError("Mode must be under or over");
-  if (target < 2 || target > 98) throw new AppError("Target must be between 2 and 98");
+  if (!betAmount || betAmount <= 0) throw new AppError("Valid bet amount required", 400);
+  if (!["under", "over"].includes(mode)) throw new AppError("Mode must be under or over", 400);
+  if (target < 2 || target > 98) throw new AppError("Target must be between 2 and 98", 400);
 
   emitToUser(req.user._id.toString(), "placeBet", { game: "dice", betAmount });
 
@@ -36,29 +36,43 @@ export const playDice = asyncHandler(async (req, res) => {
     await creditWin(req.user._id, payout, "dice", { roll, target, mode, multiplier });
   }
 
-  const history = await GameHistory.create({
-    userId: req.user._id,
-    game: "dice",
-    betAmount,
-    payout,
-    profit: payout - betAmount,
-    won,
-    multiplier: won ? multiplier : 0,
-    result: { roll, target, mode },
-    serverSeed,
-    clientSeed,
-    combinedHash,
-    status: "completed",
-  });
+  // Insert game history in public.game_histories
+  const { data: history, error: historyErr } = await supabase
+    .from("game_histories")
+    .insert({
+      user_id: req.user._id,
+      game: "dice",
+      bet_amount: betAmount,
+      payout,
+      profit: payout - betAmount,
+      won,
+      multiplier: won ? multiplier : 0,
+      result: { roll, target, mode },
+      server_seed: serverSeed,
+      client_seed: clientSeed,
+      combined_hash: combinedHash,
+      status: "completed",
+    })
+    .select()
+    .single();
+
+  if (historyErr) throw new AppError("Failed to save game history", 500);
 
   const stats = await updateStatsAfterGame(req.user._id, {
     betAmount,
     payout,
     won,
-    historyId: history._id,
+    historyId: history.id,
   });
 
-  const user = await req.user.constructor.findById(req.user._id);
+  // Fetch updated balance from wallets
+  const { data: wallet } = await supabase
+    .from("wallets")
+    .select("balance")
+    .eq("user_id", req.user._id)
+    .single();
+
+  const balance = Number(wallet?.balance ?? 1000);
 
   const payload = {
     success: true,
@@ -69,8 +83,8 @@ export const playDice = asyncHandler(async (req, res) => {
     won,
     payout,
     profit: payout - betAmount,
-    balance: user.balance,
-    historyId: history._id,
+    balance,
+    historyId: history.id,
     stats,
     fairness: { serverSeed, clientSeed, combinedHash },
   };

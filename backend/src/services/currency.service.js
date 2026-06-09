@@ -1,4 +1,4 @@
-import { ExchangeRate } from "../models/ExchangeRate.js";
+import { supabase } from "../lib/supabase.js";
 import { env } from "../config/env.js";
 
 const SUPPORTED = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "SGD", "HKD", "JPY"];
@@ -32,7 +32,13 @@ export function getCurrencySymbol(currency) {
 }
 
 export async function getRates() {
-  const latest = await ExchangeRate.findOne().sort({ fetchedAt: -1 }).lean();
+  const { data: latest } = await supabase
+    .from("exchange_rates")
+    .select("rates")
+    .order("fetched_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   if (latest?.rates) return latest.rates;
   return FALLBACK_RATES;
 }
@@ -46,11 +52,24 @@ export async function convertAmount(amountUsd, toCurrency) {
 
 export async function fetchAndStoreRates() {
   if (!env.openExchangeRatesAppId) {
-    await ExchangeRate.findOneAndUpdate(
-      { baseCurrency: "USD" },
-      { rates: FALLBACK_RATES, fetchedAt: new Date() },
-      { upsert: true },
-    );
+    const { data: existing } = await supabase
+      .from("exchange_rates")
+      .select("id")
+      .eq("base_currency", "USD")
+      .maybeSingle();
+
+    if (existing) {
+      await supabase
+        .from("exchange_rates")
+        .update({ rates: FALLBACK_RATES, fetched_at: new Date().toISOString() })
+        .eq("id", existing.id);
+    } else {
+      await supabase.from("exchange_rates").insert({
+        base_currency: "USD",
+        rates: FALLBACK_RATES,
+        fetched_at: new Date().toISOString(),
+      });
+    }
     return FALLBACK_RATES;
   }
 
@@ -63,7 +82,13 @@ export async function fetchAndStoreRates() {
   for (const c of SUPPORTED) {
     if (data.rates?.[c]) rates[c] = data.rates[c];
   }
-  await ExchangeRate.create({ baseCurrency: "USD", rates, fetchedAt: new Date() });
+
+  await supabase.from("exchange_rates").insert({
+    base_currency: "USD",
+    rates,
+    fetched_at: new Date().toISOString(),
+  });
+
   return rates;
 }
 

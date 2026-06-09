@@ -1,5 +1,4 @@
-import { ChatMessage } from "../models/ChatMessage.js";
-import { SupportChat } from "../models/SupportChat.js";
+import { supabase } from "../lib/supabase.js";
 import { getSupportReply } from "../services/support.service.js";
 import { emitToUser } from "../services/socket.service.js";
 
@@ -11,41 +10,92 @@ export function registerSocketEvents(io, socket) {
   socket.on("sendMessage", async ({ chatId, message }) => {
     if (!message?.trim()) return;
 
-    let chat = chatId
-      ? await SupportChat.findOne({ _id: chatId, userId: socket.userId })
-      : await SupportChat.findOne({ userId: socket.userId, status: "open" });
+    let chat = null;
 
-    if (!chat) {
-      chat = await SupportChat.create({ userId: socket.userId, status: "open" });
+    if (chatId) {
+      const { data } = await supabase
+        .from("support_chats")
+        .select("*")
+        .eq("id", chatId)
+        .eq("user_id", socket.userId)
+        .maybeSingle();
+      chat = data;
+    } else {
+      const { data } = await supabase
+        .from("support_chats")
+        .select("*")
+        .eq("user_id", socket.userId)
+        .eq("status", "open")
+        .maybeSingle();
+      chat = data;
     }
 
-    const userMsg = await ChatMessage.create({
-      chatId: chat._id,
-      senderId: socket.userId,
-      message: message.trim(),
-      isAi: false,
-    });
+    if (!chat) {
+      const { data: newChat } = await supabase
+        .from("support_chats")
+        .insert({ user_id: socket.userId, status: "open" })
+        .select()
+        .single();
+      chat = newChat;
+    }
+
+    // Insert user message in database
+    const { data: userMsg } = await supabase
+      .from("chat_messages")
+      .insert({
+        chat_id: chat.id,
+        sender_id: socket.userId,
+        message: message.trim(),
+        is_ai: false,
+      })
+      .select()
+      .single();
+
+    const legacyUserMsg = userMsg ? {
+      _id: userMsg.id,
+      chatId: userMsg.chat_id,
+      senderId: userMsg.sender_id,
+      message: userMsg.message,
+      isAi: userMsg.is_ai,
+      createdAt: userMsg.created_at,
+    } : null;
 
     emitToUser(socket.userId, "newMessage", {
-      chatId: chat._id,
-      message: userMsg,
+      chatId: chat.id,
+      message: legacyUserMsg,
     });
 
-    io.to(`chat:${chat._id}`).emit("typingIndicator", { typing: true, isAi: true });
+    io.to(`chat:${chat.id}`).emit("typingIndicator", { typing: true, isAi: true });
 
     try {
       const reply = await getSupportReply(message.trim(), socket.user);
-      const aiMsg = await ChatMessage.create({
-        chatId: chat._id,
-        message: reply,
-        isAi: true,
-      });
+      
+      // Insert AI message in database
+      const { data: aiMsg } = await supabase
+        .from("chat_messages")
+        .insert({
+          chat_id: chat.id,
+          message: reply,
+          is_ai: true,
+        })
+        .select()
+        .single();
+
+      const legacyAiMsg = aiMsg ? {
+        _id: aiMsg.id,
+        chatId: aiMsg.chat_id,
+        senderId: aiMsg.sender_id,
+        message: aiMsg.message,
+        isAi: aiMsg.is_ai,
+        createdAt: aiMsg.created_at,
+      } : null;
+
       emitToUser(socket.userId, "newMessage", {
-        chatId: chat._id,
-        message: aiMsg,
+        chatId: chat.id,
+        message: legacyAiMsg,
       });
     } finally {
-      io.to(`chat:${chat._id}`).emit("typingIndicator", { typing: false, isAi: true });
+      io.to(`chat:${chat.id}`).emit("typingIndicator", { typing: false, isAi: true });
     }
   });
 

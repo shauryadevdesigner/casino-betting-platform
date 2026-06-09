@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
-import { User } from "../models/User.js";
-import { signToken } from "../utils/jwt.js";
+import { supabase } from "../lib/supabase.js";
 import { env } from "../config/env.js";
 import { AppError } from "../middleware/errorHandler.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -13,86 +13,158 @@ import {
   verifyTotp,
   verifyBackupCode,
 } from "../services/twoFactor.service.js";
+import { userToPublicJSON } from "../utils/userMapper.js";
 
 const googleClient = env.googleClientId
   ? new OAuth2Client(env.googleClientId)
   : null;
 
+// Helper to generate a stable password for OAuth users to allow signInWithPassword
+function getStableOAuthPassword(oauthSub) {
+  return crypto.createHmac("sha256", env.jwtSecret).update(oauthSub).digest("hex");
+}
+
 export const register = asyncHandler(async (req, res) => {
   const { username, email, password, displayName, referralCode } = req.body;
 
   if (!username || !email || !password) {
-    throw new AppError("Username, email, and password are required");
+    throw new AppError("Username, email, and password are required", 400);
   }
   if (password.length < 6) {
-    throw new AppError("Password must be at least 6 characters");
+    throw new AppError("Password must be at least 6 characters", 400);
   }
 
-  const exists = await User.findOne({
-    $or: [{ email: email.toLowerCase() }, { username }],
-  });
-  if (exists) throw new AppError("Username or email already in use", 409);
+  // Check unique username in public.profiles
+  const { data: nameCheck } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("username", username)
+    .maybeSingle();
 
-  const hashed = await bcrypt.hash(password, 12);
-  const user = await User.create({
-    username,
+  if (nameCheck) throw new AppError("Username already in use", 409);
+
+  // Sign up via Supabase Auth
+  const { data, error } = await supabase.auth.signUp({
     email: email.toLowerCase(),
-    password: hashed,
-    displayName: displayName || username,
-    balance: env.initialBalance,
-    emailVerified: false,
+    password,
+    options: {
+      data: {
+        username,
+        displayName: displayName || username,
+      },
+    },
   });
 
-  await ensureReferralCode(user);
-  await applyReferralCode(user, referralCode);
+  if (error) throw new AppError(error.message, 400);
+  if (!data.user) throw new AppError("Signup failed", 500);
 
-  const token = signToken(user._id);
+  const userId = data.user.id;
+
+  // Retrieve profile (trigger on_auth_user_created handles creation)
+  let { data: profile } = await supabase
+    .from("profiles")
+    .select("*, wallets(balance)")
+    .eq("id", userId)
+    .maybeSingle();
+
+  // Fallback in case trigger is slightly asynchronous in local setup
+  if (!profile) {
+    // Manually create profile and wallet
+    const { data: newProf } = await supabase
+      .from("profiles")
+      .insert({
+        id: userId,
+        username,
+        email: email.toLowerCase(),
+        display_name: displayName || username,
+        vip_tier: "bronze",
+      })
+      .select()
+      .single();
+
+    await supabase.from("wallets").insert({ user_id: userId, balance: 1000.00 });
+
+    const { data: profWithWallet } = await supabase
+      .from("profiles")
+      .select("*, wallets(balance)")
+      .eq("id", userId)
+      .single();
+    profile = profWithWallet;
+  }
+
+  await ensureReferralCode(profile);
+  await applyReferralCode(profile, referralCode);
+
+  // Reload profile to get latest referral details
+  const { data: latestProfile } = await supabase
+    .from("profiles")
+    .select("*, wallets(balance)")
+    .eq("id", userId)
+    .single();
+
   res.status(201).json({
     success: true,
-    token,
-    user: user.toPublicJSON(),
+    token: data.session?.access_token || "",
+    user: userToPublicJSON(latestProfile),
   });
 });
 
 export const login = asyncHandler(async (req, res) => {
   const { email, password, otp } = req.body;
   if (!email || !password) {
-    throw new AppError("Email and password are required");
+    throw new AppError("Email and password are required", 400);
   }
 
-  const user = await User.findOne({ email: email.toLowerCase() }).select(
-    "+password +twoFactorSecret +backupCodes",
-  );
-  if (!user || !user.password) throw new AppError("Invalid credentials", 401);
+  // Authenticate using Supabase Auth
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.toLowerCase(),
+    password,
+  });
 
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) throw new AppError("Invalid credentials", 401);
+  if (error) throw new AppError("Invalid credentials", 401);
 
-  if (user.twoFactorEnabled) {
+  // Get user profile
+  const { data: profile, error: profileErr } = await supabase
+    .from("profiles")
+    .select("*, wallets(balance)")
+    .eq("id", data.user.id)
+    .single();
+
+  if (profileErr || !profile) throw new AppError("User profile not found", 404);
+
+  // Handle 2FA verification
+  if (profile.two_factor_enabled) {
     if (!otp) {
+      // Return 2FA required status to frontend
       return res.json({
         success: true,
         requires2FA: true,
-        userId: user._id,
+        userId: profile.id,
       });
     }
-    if (!verifyTotp(user, otp) && !verifyBackupCode(user, otp)) {
+    const isBackupUsed = verifyBackupCode(profile, otp);
+    if (!verifyTotp(profile, otp) && !isBackupUsed) {
       throw new AppError("Invalid 2FA code", 401);
     }
-    await user.save();
+    // Update backup codes in DB if backup code was used
+    if (isBackupUsed) {
+      await supabase
+        .from("profiles")
+        .update({ backup_codes: profile.backup_codes })
+        .eq("id", profile.id);
+    }
   }
 
-  const token = signToken(user._id);
   res.json({
     success: true,
-    token,
-    user: user.toPublicJSON(),
+    token: data.session.access_token,
+    user: userToPublicJSON(profile),
   });
 });
 
 export const googleLogin = asyncHandler(async (req, res) => {
   const { idToken, referralCode } = req.body;
-  if (!idToken) throw new AppError("Google ID token required");
+  if (!idToken) throw new AppError("Google ID token required", 400);
   if (!googleClient) throw new AppError("Google OAuth not configured", 503);
 
   const ticket = await googleClient.verifyIdToken({
@@ -102,48 +174,100 @@ export const googleLogin = asyncHandler(async (req, res) => {
   const payload = ticket.getPayload();
   if (!payload?.email) throw new AppError("Invalid Google token", 401);
 
-  let user = await User.findOne({
-    $or: [{ googleId: payload.sub }, { email: payload.email.toLowerCase() }],
-  });
+  // Find profile by googleId or email
+  let { data: profile } = await supabase
+    .from("profiles")
+    .select("*, wallets(balance)")
+    .or(`google_id.eq.${payload.sub},email.eq.${payload.email.toLowerCase()}`)
+    .maybeSingle();
 
-  if (!user) {
+  const stablePassword = getStableOAuthPassword(payload.sub);
+
+  if (!profile) {
     const baseUsername = (payload.email.split("@")[0] || "player")
       .replace(/[^a-zA-Z0-9]/g, "")
       .slice(0, 12);
     let username = baseUsername;
     let n = 1;
-    while (await User.exists({ username })) {
+    while (true) {
+      const { data: exists } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", username)
+        .maybeSingle();
+      if (!exists) break;
       username = `${baseUsername}${n++}`;
     }
 
-    user = await User.create({
-      username,
+    // Create user in Supabase Auth
+    const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
       email: payload.email.toLowerCase(),
-      googleId: payload.sub,
-      profilePictureUrl: payload.picture || "",
-      avatarUrl: payload.picture || "",
-      displayName: payload.name || username,
-      emailVerified: payload.email_verified ?? true,
-      balance: env.initialBalance,
+      password: stablePassword,
+      email_confirm: true,
+      user_metadata: {
+        username,
+        displayName: payload.name || username,
+        avatarUrl: payload.picture || "",
+      },
     });
-    await ensureReferralCode(user);
-    await applyReferralCode(user, referralCode);
-  } else if (!user.googleId) {
-    user.googleId = payload.sub;
-    user.profilePictureUrl = payload.picture || user.profilePictureUrl;
-    await user.save();
+
+    if (authErr) throw new AppError(authErr.message, 500);
+
+    // Update profile
+    const { data: newProfile } = await supabase
+      .from("profiles")
+      .update({
+        google_id: payload.sub,
+        profile_picture_url: payload.picture || "",
+        avatar_url: payload.picture || "",
+      })
+      .eq("id", authData.user.id)
+      .select("*, wallets(balance)")
+      .single();
+
+    profile = newProfile;
+    await ensureReferralCode(profile);
+    await applyReferralCode(profile, referralCode);
+
+    // Reload
+    const { data: latestProfile } = await supabase
+      .from("profiles")
+      .select("*, wallets(balance)")
+      .eq("id", authData.user.id)
+      .single();
+    profile = latestProfile;
+  } else if (!profile.google_id) {
+    // Link existing user
+    const { data: updatedProfile } = await supabase
+      .from("profiles")
+      .update({
+        google_id: payload.sub,
+        profile_picture_url: payload.picture || profile.profile_picture_url,
+        avatar_url: payload.picture || profile.avatar_url,
+      })
+      .eq("id", profile.id)
+      .select("*, wallets(balance)")
+      .single();
+    profile = updatedProfile;
   }
 
-  const token = signToken(user._id);
+  // Sign in using stable credentials to generate a valid access token
+  const { data: signinData, error: signinErr } = await supabase.auth.signInWithPassword({
+    email: profile.email,
+    password: stablePassword,
+  });
+
+  if (signinErr) throw new AppError("Google auth login failed", 500);
+
   res.json({
     success: true,
-    token,
-    user: user.toPublicJSON(),
+    token: signinData.session.access_token,
+    user: userToPublicJSON(profile),
   });
 });
 
 export const getMe = asyncHandler(async (req, res) => {
-  res.json({ success: true, user: req.user.toPublicJSON() });
+  res.json({ success: true, user: userToPublicJSON(req.user) });
 });
 
 export const setup2FA = asyncHandler(async (req, res) => {
@@ -159,4 +283,53 @@ export const verify2FA = asyncHandler(async (req, res) => {
 export const disable2FA = asyncHandler(async (req, res) => {
   await disableTwoFactor(req.user._id, req.body.token);
   res.json({ success: true, twoFactorEnabled: false });
+});
+
+export const postSignup = asyncHandler(async (req, res) => {
+  const { referralCode } = req.body;
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", req.user._id)
+    .single();
+
+  if (error || !profile) throw new AppError("User profile not found", 404);
+
+  // Apply referral and ensure referral code
+  await ensureReferralCode(profile);
+  if (referralCode) {
+    await applyReferralCode(profile, referralCode);
+  }
+
+  res.json({ success: true });
+});
+
+export const check2FA = asyncHandler(async (req, res) => {
+  const { otp } = req.body;
+  if (!otp) throw new AppError("2FA code required", 400);
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", req.user._id)
+    .single();
+
+  if (error || !profile) throw new AppError("User profile not found", 404);
+
+  const isBackupUsed = verifyBackupCode(profile, otp);
+  const totpOk = verifyTotp(profile, otp);
+
+  if (!totpOk && !isBackupUsed) {
+    throw new AppError("Invalid 2FA code", 401);
+  }
+
+  if (isBackupUsed) {
+    await supabase
+      .from("profiles")
+      .update({ backup_codes: profile.backup_codes })
+      .eq("id", profile.id);
+  }
+
+  res.json({ success: true });
 });

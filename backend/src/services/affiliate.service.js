@@ -1,7 +1,5 @@
 import crypto from "crypto";
-import { User } from "../models/User.js";
-import { Referral } from "../models/Referral.js";
-import { AffiliateCommission } from "../models/AffiliateCommission.js";
+import { supabase } from "../lib/supabase.js";
 import { emitToUser } from "./socket.service.js";
 import { recordTransaction } from "./walletService.js";
 import { AppError } from "../middleware/errorHandler.js";
@@ -13,31 +11,57 @@ export function generateReferralCode(username) {
 }
 
 export async function ensureReferralCode(user) {
-  if (user.referralCode) return user.referralCode;
+  if (user.referral_code) return user.referral_code;
+
   let code = generateReferralCode(user.username);
-  while (await User.exists({ referralCode: code })) {
+  while (true) {
+    const { data: exists } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("referral_code", code)
+      .maybeSingle();
+
+    if (!exists) break;
     code = generateReferralCode(user.username);
   }
-  user.referralCode = code;
-  await user.save();
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ referral_code: code })
+    .eq("id", user.id);
+
+  if (error) throw new AppError("Failed to generate referral code", 500);
+
   return code;
 }
 
 export async function applyReferralCode(newUser, code) {
   if (!code) return;
-  const referrer = await User.findOne({ referralCode: code.toUpperCase() });
-  if (!referrer || referrer._id.equals(newUser._id)) return;
 
-  newUser.referredByUserId = referrer._id;
-  await newUser.save();
+  const { data: referrer, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("referral_code", code.toUpperCase())
+    .maybeSingle();
 
-  await Referral.create({
-    referrerId: referrer._id,
-    referredId: newUser._id,
-    commissionRate: referrer.affiliateCommissionRate,
+  if (error || !referrer || referrer.id === newUser.id) return;
+
+  // Set referred_by_user_id on new user profile
+  await supabase
+    .from("profiles")
+    .update({ referred_by_user_id: referrer.id })
+    .eq("id", newUser.id);
+
+  // Create referrals table entry
+  await supabase.from("referrals").insert({
+    referrer_id: referrer.id,
+    referred_id: newUser.id,
+    commission_rate: referrer.affiliate_commission_rate || 0.05,
+    total_commission: 0,
+    status: "active",
   });
 
-  emitToUser(referrer._id.toString(), "newReferral", {
+  emitToUser(referrer.id, "newReferral", {
     referredUsername: newUser.username,
   });
 }
@@ -45,48 +69,89 @@ export async function applyReferralCode(newUser, code) {
 export async function recordLossCommission(referredUserId, lossAmount, gameHistoryId) {
   if (lossAmount <= 0) return;
 
-  const referred = await User.findById(referredUserId);
-  if (!referred?.referredByUserId) return;
+  // Retrieve referred user to check if they have a referrer
+  const { data: referred } = await supabase
+    .from("profiles")
+    .select("referred_by_user_id")
+    .eq("id", referredUserId)
+    .single();
 
-  const referrer = await User.findById(referred.referredByUserId);
+  if (!referred?.referred_by_user_id) return;
+
+  // Retrieve referrer profile
+  const { data: referrer } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", referred.referred_by_user_id)
+    .single();
+
   if (!referrer) return;
 
-  const rate = referrer.affiliateCommissionRate ?? 0.05;
+  const rate = Number(referrer.affiliate_commission_rate ?? 0.05);
   const commissionAmount = +(lossAmount * rate).toFixed(2);
   if (commissionAmount <= 0) return;
 
-  referrer.affiliateEarnings += commissionAmount;
-  await referrer.save();
+  // Increment affiliate earnings for referrer
+  const newEarnings = Number(referrer.affiliate_earnings ?? 0) + commissionAmount;
+  await supabase
+    .from("profiles")
+    .update({ affiliate_earnings: newEarnings })
+    .eq("id", referrer.id);
 
-  await AffiliateCommission.create({
-    referrerId: referrer._id,
-    referredId: referred._id,
-    gameHistoryId,
-    lossAmount,
-    commissionRate: rate,
-    commissionAmount,
+  // Insert affiliate commission record
+  await supabase.from("affiliate_commissions").insert({
+    referrer_id: referrer.id,
+    referred_id: referredUserId,
+    game_history_id: gameHistoryId,
+    loss_amount: lossAmount,
+    commission_rate: rate,
+    commission_amount: commissionAmount,
   });
 
-  await Referral.findOneAndUpdate(
-    { referrerId: referrer._id, referredId: referred._id },
-    { $inc: { totalCommission: commissionAmount } },
-  );
+  // Increment referral total commission
+  // Fetch existing referral
+  const { data: ref } = await supabase
+    .from("referrals")
+    .select("total_commission")
+    .eq("referrer_id", referrer.id)
+    .eq("referred_id", referredUserId)
+    .single();
 
-  emitToUser(referrer._id.toString(), "affiliateEarningsUpdated", {
-    affiliateEarnings: referrer.affiliateEarnings,
+  if (ref) {
+    const newTotal = Number(ref.total_commission || 0) + commissionAmount;
+    await supabase
+      .from("referrals")
+      .update({ total_commission: newTotal })
+      .eq("referrer_id", referrer.id)
+      .eq("referred_id", referredUserId);
+  }
+
+  emitToUser(referrer.id, "affiliateEarningsUpdated", {
+    affiliateEarnings: newEarnings,
     commissionAmount,
   });
 }
 
 export async function withdrawAffiliateEarnings(userId) {
-  const user = await User.findById(userId);
-  if (!user || user.affiliateEarnings <= 0) {
+  const { data: user } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (!user || Number(user.affiliate_earnings || 0) <= 0) {
     throw new AppError("No affiliate earnings to withdraw", 400);
   }
 
-  const amount = user.affiliateEarnings;
-  user.affiliateEarnings = 0;
-  await user.save();
+  const amount = Number(user.affiliate_earnings);
+
+  // Reset earnings in DB
+  const { error } = await supabase
+    .from("profiles")
+    .update({ affiliate_earnings: 0 })
+    .eq("id", userId);
+
+  if (error) throw new AppError("Failed to withdraw affiliate earnings", 500);
 
   await recordTransaction({
     userId,
@@ -99,24 +164,64 @@ export async function withdrawAffiliateEarnings(userId) {
 }
 
 export async function getAffiliateDashboard(userId) {
-  const user = await User.findById(userId);
-  if (!user) throw new AppError("User not found", 404);
+  const { data: user, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (error || !user) throw new AppError("User not found", 404);
 
   const code = await ensureReferralCode(user);
-  const referrals = await Referral.find({ referrerId: userId })
-    .populate("referredId", "username displayName createdAt stats.totalWagered")
-    .sort({ createdAt: -1 })
-    .lean();
 
-  const commissions = await AffiliateCommission.find({ referrerId: userId })
-    .sort({ createdAt: -1 })
-    .limit(50)
-    .lean();
+  // Query referrals and join referred profile details
+  const { data: rawReferrals } = await supabase
+    .from("referrals")
+    .select("*, referred:referred_id(username, display_name, stats, created_at)")
+    .eq("referrer_id", userId)
+    .order("created_at", { ascending: false });
+
+  const referrals = (rawReferrals || []).map((r) => ({
+    _id: r.id,
+    referrerId: r.referrer_id,
+    referredId: {
+      _id: r.referred_id,
+      username: r.referred?.username,
+      displayName: r.referred?.display_name || r.referred?.username,
+      createdAt: r.referred?.created_at,
+      stats: {
+        totalWagered: Number(r.referred?.stats?.totalWagered ?? 0),
+      },
+    },
+    commissionRate: Number(r.commission_rate),
+    totalCommission: Number(r.total_commission),
+    status: r.status,
+    createdAt: r.created_at,
+  }));
+
+  // Query recent commissions
+  const { data: rawCommissions } = await supabase
+    .from("affiliate_commissions")
+    .select("*")
+    .eq("referrer_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const commissions = (rawCommissions || []).map((c) => ({
+    _id: c.id,
+    referrerId: c.referrer_id,
+    referredId: c.referred_id,
+    gameHistoryId: c.game_history_id,
+    lossAmount: Number(c.loss_amount),
+    commissionRate: Number(c.commission_rate),
+    commissionAmount: Number(c.commission_amount),
+    createdAt: c.created_at,
+  }));
 
   return {
     referralCode: code,
-    affiliateEarnings: user.affiliateEarnings,
-    commissionRate: user.affiliateCommissionRate,
+    affiliateEarnings: Number(user.affiliate_earnings ?? 0),
+    commissionRate: Number(user.affiliate_commission_rate ?? 0.05),
     referrals,
     commissions,
     totalReferrals: referrals.length,
