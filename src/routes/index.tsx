@@ -87,8 +87,9 @@ function Dashboard() {
 
   return (
     <CasinoLayout>
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-5 max-w-[1380px] mx-auto xl:h-[calc(100vh-100px)] xl:overflow-hidden">
-        <div className="space-y-4 min-w-0 xl:h-full xl:overflow-y-auto pr-1.5 flex flex-col justify-between">
+      <div className="space-y-5 max-w-[1380px] mx-auto xl:h-[calc(100vh-100px)] xl:overflow-hidden flex flex-col">
+        {/* Top Grid: Hero (Left) and Live Wins (Right) */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-5 shrink-0">
           {/* Animated Hero Section */}
           <section className="relative rounded-3xl overflow-hidden border border-slate-900 bg-[#08080d] min-h-[250px] xl:h-[250px] flex flex-col justify-between shadow-2xl shrink-0">
             {/* Background cybernetic image */}
@@ -165,6 +166,34 @@ function Dashboard() {
             </div>
           </section>
 
+          {/* Live Wins Activity feed (Right side) */}
+          <aside className="space-y-4 shrink-0 xl:h-[250px] xl:flex xl:flex-col justify-between">
+            <div className="glass rounded-3xl p-4 flex flex-col justify-between xl:h-full min-h-[250px] overflow-hidden">
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex justify-between items-center border-b border-slate-900/60 pb-2 mb-3 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <span className="size-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                    <p className="font-display font-extrabold text-xs text-white">Live Wins</p>
+                  </div>
+                  <Link to="/live" className="text-slate-500 hover:text-white transition-colors">
+                    <ChevronRight className="size-4" />
+                  </Link>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+                  <LiveWinsTicker />
+                </div>
+              </div>
+              
+              <Link to="/live" className="mt-3 w-full py-2.5 rounded-xl bg-[#121424] hover:bg-[#181a2f] border border-slate-900 text-center font-bold text-[10px] text-slate-300 hover:text-white tracking-wide transition-all shrink-0">
+                View All Activity →
+              </Link>
+            </div>
+          </aside>
+        </div>
+
+        {/* Bottom Section (Full Width, scrollable internally on desktop) */}
+        <div className="flex-1 overflow-y-auto space-y-5 pr-1.5 custom-scrollbar">
           {/* Featured games grid */}
           <section id="featured" className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-900/60 pb-2">
@@ -254,7 +283,7 @@ function Dashboard() {
                 <img 
                   src={crownImg} 
                   alt="Gold Crown" 
-                  className="w-18 h-18 object-contain drop-shadow-[0_0_15px_rgba(255,179,0,0.4)] animate-pulse-glow" 
+                  className="w-18 h-18 object-contain drop-shadow-[0_0_15px_rgba(255,179,0,0.4)] animate-pulse-glow mix-blend-screen" 
                 />
               </div>
               <div className="relative z-10 flex-1 flex flex-col justify-between">
@@ -265,7 +294,7 @@ function Dashboard() {
                   </div>
                   <div className="space-y-1.5 text-xs max-w-[65%]">
                     <div className="flex justify-between font-semibold">
-                      <span className="text-slate-500">Cashback</span>
+                      <span className="text-slate-505">Cashback</span>
                       <span className="text-white font-extrabold">12%</span>
                     </div>
                     <div className="flex justify-between font-semibold">
@@ -317,31 +346,6 @@ function Dashboard() {
             </div>
           </div>
         </div>
-
-        {/* Live Wins Activity feed (Right side) */}
-        <aside className="space-y-4 shrink-0 xl:h-full xl:flex xl:flex-col justify-between">
-          <div className="glass rounded-3xl p-4 flex flex-col justify-between xl:h-full min-h-[400px]">
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="flex justify-between items-center border-b border-slate-900/60 pb-2 mb-3 shrink-0">
-                <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-                  <p className="font-display font-extrabold text-xs text-white">Live Wins</p>
-                </div>
-                <Link to="/live" className="text-slate-500 hover:text-white transition-colors">
-                  <ChevronRight className="size-4" />
-                </Link>
-              </div>
-              
-              <div className="flex-1 overflow-y-auto pr-1">
-                <LiveWinsTicker />
-              </div>
-            </div>
-            
-            <Link to="/live" className="mt-3 w-full py-2.5 rounded-xl bg-[#121424] hover:bg-[#181a2f] border border-slate-900 text-center font-bold text-[10px] text-slate-300 hover:text-white tracking-wide transition-all shrink-0">
-              View All Activity →
-            </Link>
-          </div>
-        </aside>
       </div>
     </CasinoLayout>
   );

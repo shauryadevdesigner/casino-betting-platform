@@ -136,7 +136,7 @@ export function CasinoLayout({ children }: { children: ReactNode }) {
               <img 
                 src={crownImg} 
                 alt="VIP Crown" 
-                className="w-14 h-14 object-contain drop-shadow-[0_0_12px_rgba(255,179,0,0.65)] animate-pulse-glow" 
+                className="w-14 h-14 object-contain drop-shadow-[0_0_12px_rgba(255,179,0,0.65)] animate-pulse-glow mix-blend-screen" 
               />
             </div>
             <p className="text-xs font-extrabold text-white tracking-wide">Unlock VIP Perks</p>
@@ -195,7 +195,7 @@ export function CasinoLayout({ children }: { children: ReactNode }) {
             <img 
               src={crownImg} 
               alt="VIP Crown" 
-              className="w-12 h-12 mx-auto object-contain drop-shadow-[0_0_10px_rgba(255,179,0,0.6)] animate-pulse-glow mb-1" 
+              className="w-12 h-12 mx-auto object-contain drop-shadow-[0_0_10px_rgba(255,179,0,0.6)] animate-pulse-glow mb-1 mix-blend-screen" 
             />
             <p className="mt-2 text-xs font-extrabold text-white">Unlock VIP Perks</p>
             <Link to="/vip" onClick={() => setMobileMenuOpen(false)} className="mt-3 block w-full py-2 rounded-lg bg-gradient-to-r from-neon-pink to-neon-purple text-white font-extrabold text-[9px] uppercase tracking-widest text-center shadow-md">
